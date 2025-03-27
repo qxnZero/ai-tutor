@@ -12,3 +12,48 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Course {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  duration    String    // e.g., "8 weeks", "6 months"
+  difficulty  String    // e.g., "Beginner", "Intermediate", "Advanced"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  modules     Module[]
+}
+
+model Module {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  order       Int       // For maintaining module sequence
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id])
+  topics      Topic[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Topic {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  order       Int       // For maintaining topic sequence
+  moduleId    String
+  module      Module    @relation(fields: [moduleId], references: [id])
+  objectives  LearningObjective[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model LearningObjective {
+  id          String    @id @default(cuid())
+  description String
+  order       Int       // For maintaining objective sequence
+  topicId     String
+  topic       Topic     @relation(fields: [topicId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
