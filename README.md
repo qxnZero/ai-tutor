@@ -23,18 +23,9 @@ This application uses the Gemini API to generate personalized course roadmaps ba
 ## Getting Started
 
 1. Clone the repository
-2. Install dependencies: `npm install`
+2. Install dependencies: `bun install`
 3. Set up environment variables:
    - `DATABASE_URL`: Your PostgreSQL connection string
    - `GEMINI_API_KEY`: Your Google Gemini API key
-4. Run the development server: `npm run dev`
+4. Run the development server: `bun run dev`
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Deployment
-
-This application is deployed on Vercel with a PostgreSQL database from Neon DB.
-
-## License
-
-MIT
-
