@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -12,46 +11,44 @@ datasource db {
 }
 
 model Course {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
-  description String
-  duration    String    // e.g., "8 weeks", "6 months"
-  difficulty  String    // e.g., "Beginner", "Intermediate", "Advanced"
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  description String?
+  difficulty  String
+  topic       String
   modules     Module[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Module {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
-  description String
-  order       Int       // For maintaining module sequence
+  description String?
+  order       Int
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    String
-  course      Course    @relation(fields: [courseId], references: [id])
-  topics      Topic[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  lessons     Lesson[]
 }
 
-model Topic {
-  id          String    @id @default(cuid())
+model Lesson {
+  id          String  @id @default(cuid())
   title       String
-  description String
-  order       Int       // For maintaining topic sequence
+  description String?
+  content     String? @db.Text
+  exercises   Json?
+  order       Int
+  completed   Boolean @default(false)
+  module      Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   moduleId    String
-  module      Module    @relation(fields: [moduleId], references: [id])
-  objectives  LearningObjective[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 }
 
-model LearningObjective {
-  id          String    @id @default(cuid())
-  description String
-  order       Int       // For maintaining objective sequence
-  topicId     String
-  topic       Topic     @relation(fields: [topicId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+model UserProgress {
+  id        String   @id @default(cuid())
+  courseId  String
+  progress  Float    @default(0)
+  lastLesson String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
