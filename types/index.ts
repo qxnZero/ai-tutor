@@ -1,27 +1,39 @@
-export type Difficulty = "Beginner" | "Intermediate" | "Advanced ";
-
-export type Lesson = {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-};
-
-export type Module = {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  lessons: Lesson[];
-};
-
-export type Course = {
-  id: string;
-  title: string;
-  description?: string;
-  difficulty: Difficulty;
+export type CourseFormValues = {
   topic: string;
-  modules: Module[];
-  createdAt: Date;
-  updatedAt: Date;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  additionalDetails: boolean;
+  details?: string;
+};
+
+export type LessonWithModule = {
+  id: string;
+  title: string;
+  description: string | null;
+  content: string | null;
+  exercises: Record<string, string> | null;
+  order: number;
+  completed: boolean;
+  moduleId: string;
+  module: {
+    id: string;
+    title: string;
+    description: string | null;
+    order: number;
+    courseId: string;
+    course: {
+      id: string;
+      title: string;
+      description: string | null;
+      difficulty: string;
+      topic: string;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+    lessons: {
+      id: string;
+      title: string;
+      order: number;
+      completed: boolean;
+    }[];
+  };
 };
