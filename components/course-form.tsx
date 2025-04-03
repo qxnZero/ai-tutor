@@ -1,42 +1,53 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Loader2, Sparkles } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Wand2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
-type DifficultyLevel = "Beginner" | "Intermediate" | "Advanced"
+const formSchema = z.object({
+  topic: z.string().min(2, {
+    message: "Topic must be at least 2 characters.",
+  }),
+  difficulty: z.enum(["Beginner", "Intermediate", "Advanced"]),
+  additionalDetails: z.boolean().default(false),
+  details: z.string().optional(),
+})
 
-export default function CourseForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [topic, setTopic] = useState("")
-  const [difficulty, setDifficulty] = useState<DifficultyLevel>("Beginner")
-  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false)
-  const [additionalInfo, setAdditionalInfo] = useState("")
+export default function CourseForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      topic: "",
+      difficulty: "Beginner",
+      additionalDetails: false,
+      details: "",
+    },
+  })
 
-    if (!topic) return
-
-    setIsLoading(true)
-
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch("/api/courses", {
+      setIsLoading(true)
+
+      const response = await fetch("/api/courses/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          topic,
-          difficulty,
-          additionalInfo: showAdditionalInfo ? additionalInfo : "",
-        }),
+        body: JSON.stringify(values),
       })
 
       if (!response.ok) {
@@ -44,7 +55,8 @@ export default function CourseForm({ onSubmit }: { onSubmit: (data: any) => void
       }
 
       const data = await response.json()
-      onSubmit(data)
+      router.push(`/courses/${data.id}`)
+      router.refresh()
     } catch (error) {
       console.error("Error generating course:", error)
     } finally {
@@ -53,70 +65,111 @@ export default function CourseForm({ onSubmit }: { onSubmit: (data: any) => void
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-3xl mx-auto">
-      <div className="space-y-2">
-        <Label htmlFor="topic">Course Topic</Label>
-        <Input
-          id="topic"
-          placeholder="e.g., Algebra, JavaScript, Photography"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          required
-        />
-      </div>
+    <Card className="w-full max-w-3xl mx-auto">
+      <CardContent className="pt-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="topic">Course Topic</Label>
+                <FormField
+                  control={form.control}
+                  name="topic"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input id="topic" placeholder="e.g., Algebra, JavaScript, Photography" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-      <div className="space-y-2">
-        <Label>Difficulty Level</Label>
-        <div className="flex flex-wrap gap-2">
-          {(["Beginner", "Intermediate", "Advanced"] as DifficultyLevel[]).map((level) => (
-            <Button
-              key={level}
-              type="button"
-              variant={difficulty === level ? "default" : "outline"}
-              onClick={() => setDifficulty(level)}
-              className="flex-1 sm:flex-none"
-            >
-              {level}
+              <div>
+                <Label>Difficulty Level</Label>
+                <FormField
+                  control={form.control}
+                  name="difficulty"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <ToggleGroup
+                          type="single"
+                          value={field.value}
+                          onValueChange={(value) => {
+                            if (value) field.onChange(value)
+                          }}
+                          className="justify-start mt-2"
+                        >
+                          <ToggleGroupItem value="Beginner" className="px-4 py-2">
+                            Beginner
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="Intermediate" className="px-4 py-2">
+                            Intermediate
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="Advanced" className="px-4 py-2">
+                            Advanced
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <FormField
+                  control={form.control}
+                  name="additionalDetails"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <Label htmlFor="additionalDetails">Tell us more to tailor the course (optional)</Label>
+                        <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">recommended</span>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {form.watch("additionalDetails") && (
+                <FormField
+                  control={form.control}
+                  name="details"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="e.g., I'm a beginner looking to build a portfolio" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+
+            <Button type="submit" className="w-full bg-slate-500 hover:bg-slate-600" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Course...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate Course
+                </>
+              )}
             </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="additionalInfo"
-          checked={showAdditionalInfo}
-          onCheckedChange={(checked) => setShowAdditionalInfo(checked === true)}
-        />
-        <Label htmlFor="additionalInfo" className="text-sm text-gray-600">
-          Tell us more to tailor the course (optional)
-          <span className="ml-2 text-xs bg-gray-200 px-2 py-0.5 rounded">recommended</span>
-        </Label>
-      </div>
-
-      {showAdditionalInfo && (
-        <Textarea
-          placeholder="Specific areas of interest, learning goals, or preferences..."
-          value={additionalInfo}
-          onChange={(e) => setAdditionalInfo(e.target.value)}
-          className="min-h-[100px]"
-        />
-      )}
-
-      <Button type="submit" className="w-full py-6" disabled={isLoading || !topic}>
-        {isLoading ? (
-          <span className="flex items-center gap-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Generating Course...
-          </span>
-        ) : (
-          <span className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5" />
-            Generate Course
-          </span>
-        )}
-      </Button>
-    </form>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }
 

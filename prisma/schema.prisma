@@ -10,6 +10,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  courses       Course[]
+  progress      UserProgress[]
+  notes         Note[]
+  bookmarks     Bookmark[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model Course {
   id          String   @id @default(cuid())
   title       String
@@ -19,6 +71,9 @@ model Course {
   modules     Module[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  isPublic    Boolean  @default(false)
 }
 
 model Module {
@@ -32,23 +87,47 @@ model Module {
 }
 
 model Lesson {
-  id          String  @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   description String?
-  content     String? @db.Text
+  content     String?    @db.Text
   exercises   Json?
   order       Int
-  completed   Boolean @default(false)
-  module      Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  completed   Boolean    @default(false)
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   moduleId    String
+  notes       Note[]
+  bookmarks   Bookmark[]
 }
 
 model UserProgress {
-  id        String   @id @default(cuid())
-  courseId  String
-  progress  Float    @default(0)
+  id         String   @id @default(cuid())
+  courseId   String
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  progress   Float    @default(0)
   lastLesson String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 

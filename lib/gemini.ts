@@ -1,139 +1,108 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
-// Initialize the Google Generative AI with your API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Initialize the Gemini API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
-export async function generateCourseRoadmap(
+type Lesson = {
+  title: string
+  summary: string
+  content: string
+  exercises?: Record<string, string>
+}
+
+type Module = {
+  title: string
+  description: string
+  lessons: Lesson[]
+}
+
+type CourseData = {
+  title: string
+  description: string
+  modules: Module[]
+}
+
+export async function generateCourseContent(
   topic: string,
   difficulty: string,
-  additionalInfo?: string
-) {
+  additionalDetails?: string,
+): Promise<CourseData> {
   try {
-    // Get the generative model
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
-    });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
 
-    // Create the prompt for generating a course roadmap
     const prompt = `
-      Create a comprehensive course roadmap for learning "${topic}" at a ${difficulty} level.
-      ${additionalInfo ? `Additional requirements: ${additionalInfo}` : ""}
-
+      Create a comprehensive learning course on "${topic}" for ${difficulty} level students.
+      ${additionalDetails ? `Additional context: ${additionalDetails}` : ""}
+      
+      The course should include:
+      1. A descriptive title
+      2. A brief course description
+      3. 5-7 modules, each with:
+         - A clear title
+         - A brief description
+         - 4-6 lessons per module
+      4. For each lesson:
+         - A clear title
+         - Detailed content with explanations, examples, and code snippets if relevant
+         - A brief summary
+         - 2-3 practice exercises or activities
+      
       Format the response as a JSON object with the following structure:
       {
         "title": "Course Title",
-        "description": "A brief description of the course",
-        "difficulty": "${difficulty}",
-        "topic": "${topic}",
+        "description": "Course description",
         "modules": [
           {
             "title": "Module Title",
-            "description": "Brief description of the module",
-            "order": 1,
+            "description": "Module description",
             "lessons": [
               {
                 "title": "Lesson Title",
-                "description": "Brief description of what will be covered in this lesson",
-                "order": 1,
-                "content": "Detailed HTML content for the lesson with proper formatting, headings, paragraphs, and code examples if applicable",
-                "exercises": [
-                  {
-                    "title": "Exercise Title",
-                    "description": "Detailed description of the exercise",
-                    "code": "Sample code or starter code for the exercise if applicable"
-                  }
-                ]
+                "content": "Detailed lesson content with HTML formatting",
+                "summary": "Brief lesson summary",
+                "exercises": {
+                  "Exercise 1 Title": "Exercise 1 description",
+                  "Exercise 2 Title": "Exercise 2 description"
+                }
               }
             ]
           }
         ]
       }
+      
+      Make sure the content is educational, accurate, and follows a logical progression from basic to more advanced concepts.
+      Include practical examples and real-world applications where appropriate.
+    `
 
-      Ensure the course is well-structured, comprehensive, and follows a logical learning progression.
-      Include 5-8 modules with 5-8 lessons each.
-      For each lesson, provide detailed content with explanations, examples, and exercises.
-      Make sure all JSON is valid with no syntax errors.
-    `;
+    const result = await model.generateContent(prompt)
+    const responseText = result.response.text()
 
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Extract JSON from the response
+    const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) ||
+      responseText.match(/```([\s\S]*?)```/) || [null, responseText]
 
-    // Extract the JSON from the response
-    const jsonMatch =
-      text.match(/```json\n([\s\S]*?)\n```/) || text.match(/{[\s\S]*}/);
+    const jsonString = jsonMatch[1] || responseText
 
-    if (jsonMatch) {
-      const jsonString = jsonMatch[1] || jsonMatch[0];
-      return JSON.parse(jsonString);
-    } else {
-      throw new Error("Failed to parse JSON from Gemini response");
+    try {
+      const parsedData = JSON.parse(jsonString.trim())
+      return parsedData
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError)
+
+      // Fallback: Try to extract just the JSON part
+      const startBrace = responseText.indexOf("{")
+      const endBrace = responseText.lastIndexOf("}")
+
+      if (startBrace !== -1 && endBrace !== -1) {
+        const jsonSubstring = responseText.substring(startBrace, endBrace + 1)
+        return JSON.parse(jsonSubstring)
+      }
+
+      throw new Error("Failed to parse course data")
     }
   } catch (error) {
-    console.error("Error generating course roadmap:", error);
-    throw error;
+    console.error("Error generating course content:", error)
+    throw error
   }
 }
 
-export async function generateLessonContent(
-  topic: string,
-  lessonTitle: string
-) {
-  try {
-    // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-    // Create the prompt for generating lesson content
-    const prompt = `
-      Create detailed content for a lesson titled "${lessonTitle}" on the topic of "${topic}".
-
-      The content should include:
-      1. A clear introduction to the lesson topic
-      2. Detailed explanations with examples
-      3. Code samples where appropriate
-      4. Visual explanations (described in text)
-      5. 3-5 exercises or practice problems
-
-      Format the response as HTML that can be directly inserted into a lesson page.
-      Include proper headings, paragraphs, code blocks, and formatting.
-      Make the content engaging, educational, and appropriate for the specified difficulty level.
-    `;
-
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const content = response.text();
-
-    return content;
-  } catch (error) {
-    console.error("Error generating lesson content:", error);
-    throw error;
-  }
-}
-
-export async function answerQuestion(question: string, lessonContext: string) {
-  try {
-    // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-    // Create the prompt for answering a question
-    const prompt = `
-      You are an AI tutor helping a student learn about "${lessonContext}".
-
-      The student asks: "${question}"
-
-      Provide a clear, concise, and educational answer to help the student understand.
-      If the question is about code, include examples where appropriate.
-      Keep your answer focused on the topic and helpful for learning.
-    `;
-
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error("Error answering question:", error);
-    throw error;
-  }
-}
