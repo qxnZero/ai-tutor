@@ -5,12 +5,19 @@ import { Button } from "@/components/ui/button"
 import { prisma } from "@/lib/prisma"
 import AIInstructor from "@/components/ai-instructor"
 import LessonKnowledgeTest from "@/components/lesson-knowledge-test"
+import LessonNotes from "@/components/lesson-notes"
+import LessonBookmark from "@/components/lesson-bookmark"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export default async function LessonPage({
   params,
 }: {
   params: { id: string; lessonId: string }
 }) {
+  const session = await getServerSession(authOptions)
+  const userId = session?.user?.id
+
   const lesson = await prisma.lesson.findUnique({
     where: {
       id: params.lessonId,
@@ -78,55 +85,60 @@ export default async function LessonPage({
     previousLesson = prevModule.lessons[prevModule.lessons.length - 1]
   }
 
-  // Mark lesson as viewed/completed
-  await prisma.lesson.update({
-    where: {
-      id: lesson.id,
-    },
-    data: {
-      completed: true,
-    },
-  })
-
-  // Update user progress
-  const totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
-
-  const completedLessons = await prisma.lesson.count({
-    where: {
-      module: {
-        courseId: course.id,
+  // Mark lesson as viewed/completed if user is authenticated
+  if (userId) {
+    await prisma.lesson.update({
+      where: {
+        id: lesson.id,
       },
-      completed: true,
-    },
-  })
+      data: {
+        completed: true,
+      },
+    })
 
-  const progress = Math.round((completedLessons / totalLessons) * 100)
+    // Update user progress
+    const totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
 
-  await prisma.userProgress.upsert({
-    where: {
-      id: `${course.id}`,
-    },
-    update: {
-      progress,
-      lastLesson: lesson.id,
-    },
-    create: {
-      id: `${course.id}`,
-      courseId: course.id,
-      progress,
-      lastLesson: lesson.id,
-    },
-  })
+    const completedLessons = await prisma.lesson.count({
+      where: {
+        module: {
+          courseId: course.id,
+        },
+        completed: true,
+      },
+    })
+
+    const progress = Math.round((completedLessons / totalLessons) * 100)
+
+    await prisma.userProgress.upsert({
+      where: {
+        id: `${course.id}`,
+      },
+      update: {
+        progress,
+        lastLesson: lesson.id,
+        userId,
+      },
+      create: {
+        id: `${course.id}`,
+        courseId: course.id,
+        progress,
+        lastLesson: lesson.id,
+        userId,
+      },
+    })
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/courses/${course.id}`} className="flex items-center">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Outline
           </Link>
         </Button>
+        <LessonBookmark lessonId={lesson.id} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -190,13 +202,14 @@ export default async function LessonPage({
           </div>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
           <AIInstructor
             courseId={course.id}
             lessonId={lesson.id}
             moduleName={currentModule.title}
             lessonName={lesson.title}
           />
+          <LessonNotes lessonId={lesson.id} />
         </div>
       </div>
     </div>
