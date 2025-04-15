@@ -1,18 +1,20 @@
-import { notFound } from "next/navigation"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { prisma } from "@/lib/prisma"
-import CourseDetail from "@/components/course-detail"
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
+import CourseDetail from "@/components/course-detail";
 
 export default async function CoursePage({
   params,
 }: {
-  params: { id: string }
+  params: { id: string };
 }) {
+  // Ensure params is not used directly without being awaited
+  const { id } = params;
   const course = await prisma.course.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       modules: {
@@ -24,21 +26,21 @@ export default async function CoursePage({
         },
       },
     },
-  })
+  });
 
   if (!course) {
-    notFound()
+    notFound();
   }
 
   // Get user progress
   const userProgress = await prisma.userProgress.findFirst({
     where: {
-      courseId: params.id,
+      courseId: id,
     },
-  })
+  });
 
-  const progress = userProgress?.progress || 0
-  const lastLesson = userProgress?.lastLesson
+  const progress = userProgress?.progress || 0;
+  const lastLesson = userProgress?.lastLesson;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,8 +53,11 @@ export default async function CoursePage({
         </Button>
       </div>
 
-      <CourseDetail course={course} progress={progress} lastLesson={lastLesson} />
+      <CourseDetail
+        course={course}
+        progress={progress}
+        lastLesson={lastLesson}
+      />
     </div>
-  )
+  );
 }
-
