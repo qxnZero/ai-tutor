@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["iad1"],
+  "env": {
+    "NEXTAUTH_URL": {
+      "description": "The URL of your site (e.g., https://example.com)"
+    },
+    "NEXTAUTH_SECRET": {
+      "description": "A secret used for signing cookies and tokens"
+    },
+    "DATABASE_URL": {
+      "description": "The connection string for your PostgreSQL database"
+    },
+    "GOOGLE_CLIENT_ID": {
+      "description": "Your Google OAuth client ID"
+    },
+    "GOOGLE_CLIENT_SECRET": {
+      "description": "Your Google OAuth client secret"
+    },
+    "GEMINI_API_KEY": {
+      "description": "Your Gemini API key for AI features"
+    }
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -47,7 +47,7 @@ const formSchema = z
     path: ["confirmPassword"], // Apply error to the confirmPassword field
   });
 
-export default function SignUpPage() {
+function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
@@ -266,5 +266,19 @@ export default function SignUpPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex min-h-screen w-screen flex-col items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SignUpForm />
+    </Suspense>
   );
 }

@@ -45,20 +45,14 @@ async function ProfileData() {
     where: {
       id: session.user.id,
     },
-    include: {
-      accounts: true, // Include accounts to check for Google provider
-    },
   });
 
   if (!user) {
     redirect("/auth/signin");
   }
 
-  // Check if user has a Google account
-  const googleAccount = user.accounts.find(
-    (account) => account.provider === "google"
-  );
-  const isGoogleUser = !!googleAccount;
+  // Check if user has Google provider info
+  const isGoogleUser = user.provider === "google";
 
   // Get user stats
   const courseCount = await prisma.course.count({

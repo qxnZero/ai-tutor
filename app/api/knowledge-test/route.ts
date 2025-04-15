@@ -66,9 +66,11 @@ export async function POST(req: NextRequest) {
 
     // Log a sample of the response for debugging
     const sampleLength = 200;
-    console.log("Response sample (first 200 chars):",
+    console.log(
+      "Response sample (first 200 chars):",
       responseText.substring(0, sampleLength) +
-      (responseText.length > sampleLength ? "..." : ""));
+        (responseText.length > sampleLength ? "..." : "")
+    );
 
     // Try multiple approaches to extract valid JSON
     try {
@@ -81,8 +83,9 @@ export async function POST(req: NextRequest) {
       }
 
       // Approach 2: Extract JSON from markdown code blocks
-      const jsonBlockMatch = responseText.match(/```(?:json)?\n([\s\S]*?)\n```/) ||
-                           responseText.match(/```([\s\S]*?)```/);
+      const jsonBlockMatch =
+        responseText.match(/```(?:json)?\n([\s\S]*?)\n```/) ||
+        responseText.match(/```([\s\S]*?)```/);
 
       if (jsonBlockMatch && jsonBlockMatch[1]) {
         const extractedJson = jsonBlockMatch[1].trim();
@@ -129,6 +132,12 @@ export async function POST(req: NextRequest) {
       console.error("All JSON parsing approaches failed");
       return NextResponse.json(
         { error: "Failed to parse questions: Could not extract valid JSON from the response" },
+        { status: 500 }
+      );
+    } catch (innerError) {
+      console.error("Error parsing JSON:", innerError);
+      return NextResponse.json(
+        { error: "Failed to parse questions" },
         { status: 500 }
       );
     }

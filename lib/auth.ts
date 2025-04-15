@@ -1,7 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+// Using a custom adapter instead of the default PrismaAdapter
+// import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import argon2 from "argon2"; // Import argon2
 
@@ -11,7 +12,82 @@ if (process.env.NODE_ENV === "development") {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  // Custom adapter for our simplified schema
+  adapter: {
+    createUser: async (data) => {
+      const user = await prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          emailVerified: data.emailVerified,
+          image: data.image,
+        },
+      });
+      return user;
+    },
+    getUser: async (id) => {
+      return prisma.user.findUnique({ where: { id } });
+    },
+    getUserByEmail: async (email) => {
+      return prisma.user.findUnique({ where: { email } });
+    },
+    getUserByAccount: async ({ provider, providerAccountId }) => {
+      const user = await prisma.user.findFirst({
+        where: {
+          provider: provider,
+          providerAccountId: providerAccountId,
+        },
+      });
+      return user;
+    },
+    updateUser: async (data) => {
+      return prisma.user.update({
+        where: { id: data.id },
+        data,
+      });
+    },
+    linkAccount: async (account) => {
+      // Update user with account details instead of creating a separate account
+      await prisma.user.update({
+        where: { id: account.userId },
+        data: {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          refresh_token: account.refresh_token,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          scope: account.scope,
+          id_token: account.id_token,
+          session_state: account.session_state,
+        },
+      });
+      return account;
+    },
+    createSession: async (data) => {
+      return prisma.session.create({ data });
+    },
+    getSessionAndUser: async (sessionToken) => {
+      const session = await prisma.session.findUnique({
+        where: { sessionToken },
+        include: { user: true },
+      });
+      if (!session) return null;
+      return {
+        session,
+        user: session.user,
+      };
+    },
+    updateSession: async (data) => {
+      return prisma.session.update({
+        where: { sessionToken: data.sessionToken },
+        data,
+      });
+    },
+    deleteSession: async (sessionToken) => {
+      return prisma.session.delete({ where: { sessionToken } });
+    },
+  } as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -21,8 +97,7 @@ export const authOptions: NextAuthOptions = {
           prompt: "select_account",
           access_type: "offline",
           response_type: "code",
-          // Force re-consent to ensure Google account selection
-          approval_prompt: "force",
+          // Don't use approval_prompt as it conflicts with prompt parameter
         },
       },
       // Use profile callback to ensure we get all user data
