@@ -1,22 +1,29 @@
-import { notFound } from "next/navigation"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { prisma } from "@/lib/prisma"
-import AIInstructor from "@/components/ai-instructor"
-import LessonKnowledgeTest from "@/components/lesson-knowledge-test"
-import LessonNotes from "@/components/lesson-notes"
-import LessonBookmark from "@/components/lesson-bookmark"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
+import AIInstructor from "@/components/ai-instructor";
+import LessonKnowledgeTest from "@/components/lesson-knowledge-test";
+import LessonNotes from "@/components/lesson-notes";
+import LessonBookmark from "@/components/lesson-bookmark";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function LessonPage({
   params,
 }: {
-  params: { id: string; lessonId: string }
+  params: { id: string; lessonId: string };
 }) {
-  const session = await getServerSession(authOptions)
-  const userId = session?.user?.id
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect(
+      `/auth/signin?callbackUrl=/courses/${params.id}/${params.lessonId}`
+    );
+  }
+
+  const userId = session.user.id;
 
   const lesson = await prisma.lesson.findUnique({
     where: {
@@ -34,14 +41,23 @@ export default async function LessonPage({
         },
       },
     },
-  })
+  });
 
   if (!lesson) {
-    notFound()
+    notFound();
   }
 
-  const course = lesson.module.course
-  const moduleId = lesson.moduleId
+  // Check if user has access to this course
+  if (
+    lesson.module.course.userId !== userId &&
+    !lesson.module.course.isPublic
+  ) {
+    // If the course doesn't belong to the user and isn't public, redirect to dashboard
+    redirect("/dashboard");
+  }
+
+  const course = lesson.module.course;
+  const moduleId = lesson.moduleId;
 
   // Get all modules for the course
   const modules = await prisma.module.findMany({
@@ -58,31 +74,33 @@ export default async function LessonPage({
     orderBy: {
       order: "asc",
     },
-  })
+  });
 
   // Find current lesson index and get next/previous lessons
-  const currentModuleIndex = modules.findIndex((m) => m.id === moduleId)
-  const currentModule = modules[currentModuleIndex]
-  const currentLessonIndex = currentModule.lessons.findIndex((l) => l.id === lesson.id)
+  const currentModuleIndex = modules.findIndex((m) => m.id === moduleId);
+  const currentModule = modules[currentModuleIndex];
+  const currentLessonIndex = currentModule.lessons.findIndex(
+    (l) => l.id === lesson.id
+  );
 
-  let nextLesson = null
-  let previousLesson = null
+  let nextLesson = null;
+  let previousLesson = null;
 
   // If not the last lesson in the module
   if (currentLessonIndex < currentModule.lessons.length - 1) {
-    nextLesson = currentModule.lessons[currentLessonIndex + 1]
+    nextLesson = currentModule.lessons[currentLessonIndex + 1];
   } else if (currentModuleIndex < modules.length - 1) {
     // If there's a next module
-    nextLesson = modules[currentModuleIndex + 1].lessons[0]
+    nextLesson = modules[currentModuleIndex + 1].lessons[0];
   }
 
   // If not the first lesson in the module
   if (currentLessonIndex > 0) {
-    previousLesson = currentModule.lessons[currentLessonIndex - 1]
+    previousLesson = currentModule.lessons[currentLessonIndex - 1];
   } else if (currentModuleIndex > 0) {
     // If there's a previous module
-    const prevModule = modules[currentModuleIndex - 1]
-    previousLesson = prevModule.lessons[prevModule.lessons.length - 1]
+    const prevModule = modules[currentModuleIndex - 1];
+    previousLesson = prevModule.lessons[prevModule.lessons.length - 1];
   }
 
   // Mark lesson as viewed/completed if user is authenticated
@@ -94,10 +112,13 @@ export default async function LessonPage({
       data: {
         completed: true,
       },
-    })
+    });
 
     // Update user progress
-    const totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
+    const totalLessons = modules.reduce(
+      (acc, module) => acc + module.lessons.length,
+      0
+    );
 
     const completedLessons = await prisma.lesson.count({
       where: {
@@ -106,9 +127,9 @@ export default async function LessonPage({
         },
         completed: true,
       },
-    })
+    });
 
-    const progress = Math.round((completedLessons / totalLessons) * 100)
+    const progress = Math.round((completedLessons / totalLessons) * 100);
 
     await prisma.userProgress.upsert({
       where: {
@@ -126,7 +147,7 @@ export default async function LessonPage({
         lastLesson: lesson.id,
         userId,
       },
-    })
+    });
   }
 
   return (
@@ -160,21 +181,25 @@ export default async function LessonPage({
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Practice Activities</h2>
               <div className="space-y-6">
-                {Object.entries(lesson.exercises as Record<string, string>).map(([key, value], index) => (
-                  <div key={index} className="space-y-2">
-                    <h3 className="text-lg font-medium">
-                      {index + 1}. {key}
-                    </h3>
-                    <p>{value}</p>
-                  </div>
-                ))}
+                {Object.entries(lesson.exercises as Record<string, string>).map(
+                  ([key, value], index) => (
+                    <div key={index} className="space-y-2">
+                      <h3 className="text-lg font-medium">
+                        {index + 1}. {key}
+                      </h3>
+                      <p>{value}</p>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           )}
 
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-4">Summary</h2>
-            <p className="text-muted-foreground">{lesson.description || "No summary available for this lesson."}</p>
+            <p className="text-muted-foreground">
+              {lesson.description || "No summary available for this lesson."}
+            </p>
           </div>
 
           <LessonKnowledgeTest lessonId={lesson.id} />
@@ -192,7 +217,9 @@ export default async function LessonPage({
             )}
             {nextLesson ? (
               <Button asChild>
-                <Link href={`/courses/${course.id}/${nextLesson.id}`}>Next Lesson</Link>
+                <Link href={`/courses/${course.id}/${nextLesson.id}`}>
+                  Next Lesson
+                </Link>
               </Button>
             ) : (
               <Button asChild>
@@ -213,6 +240,5 @@ export default async function LessonPage({
         </div>
       </div>
     </div>
-  )
+  );
 }
-

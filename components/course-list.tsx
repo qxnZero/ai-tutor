@@ -165,8 +165,9 @@ export default function CourseList() {
               <p className="text-muted-foreground mb-4">
                 You haven't created any courses yet.
               </p>
-              {/* Optional: Add a button/link to create a course */}
-              {/* <Button asChild> <Link href="/create-course">Create your first course</Link> </Button> */}
+              <Button asChild>
+                <Link href="/course-form">Create your first course</Link>
+              </Button>
             </>
           )}
         </div>

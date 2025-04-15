@@ -5,12 +5,35 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import argon2 from "argon2"; // Import argon2
 
+// Disable certificate validation in development mode
+if (process.env.NODE_ENV === "development") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code",
+          // Force re-consent to ensure Google account selection
+          approval_prompt: "force",
+        },
+      },
+      // Use profile callback to ensure we get all user data
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -79,11 +102,45 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, profile }) {
+      // Initial sign in
       if (user) {
         token.id = user.id;
       }
+
+      // If using Google provider and we have profile data
+      if (account?.provider === "google" && profile) {
+        // Ensure we're using the most up-to-date profile info
+        token.name = profile.name;
+        token.email = profile.email;
+        token.picture = profile.picture;
+      }
+
       return token;
+    },
+    async signIn({ user, account, profile }) {
+      // Always allow sign in
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      // Handle successful sign-in
+      console.log("User signed in:", user.email);
+    },
+    async signOut() {
+      // Clear session data on sign out
+      console.log("User signed out");
+    },
+    async session() {
+      // Session is active
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

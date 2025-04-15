@@ -99,7 +99,11 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
-      await signIn("google", { callbackUrl });
+      // Ensure we have a valid callback URL and force account selection
+      await signIn("google", {
+        callbackUrl: callbackUrl || "/dashboard",
+        prompt: "select_account",
+      });
     } catch (error) {
       console.error("Google sign in error:", error);
       toast.error("Failed to sign in with Google");
@@ -167,6 +171,7 @@ export default function SignInPage() {
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
+                autoComplete="off"
               >
                 <FormField
                   control={form.control}
@@ -178,6 +183,7 @@ export default function SignInPage() {
                         <Input
                           type="email"
                           placeholder="john.doe@example.com"
+                          autoComplete="new-email"
                           {...field}
                         />
                       </FormControl>
@@ -195,6 +201,7 @@ export default function SignInPage() {
                         <Input
                           type="password"
                           placeholder="********"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
