@@ -59,6 +59,7 @@ export async function GET() {
                 lessons: true,
               },
             },
+            lessons: true, // Include lessons to count them properly
           },
         },
       },
@@ -100,6 +101,26 @@ export async function GET() {
     return NextResponse.json(coursesWithProgress);
   } catch (error) {
     console.error("Error fetching courses:", error);
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+
+    // Check if it's a Prisma error
+    const isPrismaError =
+      error instanceof Error &&
+      (error.name === "PrismaClientKnownRequestError" ||
+        error.name === "PrismaClientUnknownRequestError" ||
+        error.name === "PrismaClientRustPanicError" ||
+        error.name === "PrismaClientInitializationError" ||
+        error.name === "PrismaClientValidationError");
+
+    if (isPrismaError) {
+      console.error("Prisma error detected");
+    }
+
     return NextResponse.json(
       {
         error: "Failed to fetch courses",
