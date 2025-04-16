@@ -29,6 +29,13 @@ model User {
   id_token          String?   @db.Text
   session_state     String?
 
+  // Subscription fields
+  subscriptionStatus      String    @default("free") // free, premium, cancelled
+  subscriptionExpiresAt   DateTime?
+  razorpayCustomerId      String?
+  razorpaySubscriptionId  String?
+  freeCoursesUsed         Int       @default(0)
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -37,6 +44,7 @@ model User {
   progress      UserProgress[]
   notes         Note[]
   bookmarks     Bookmark[]
+  transactions  SubscriptionTransaction[]
 
   // Only create the unique constraint if both fields are non-null
   @@index([provider, providerAccountId], name: "provider_providerAccountId")
@@ -125,5 +133,37 @@ model Bookmark {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  price           Int
+  currency        String    @default("INR")
+  interval        String    // monthly, yearly
+  razorpayPlanId  String?
+  features        Json?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  transactions    SubscriptionTransaction[]
+}
+
+model SubscriptionTransaction {
+  id                 String       @id @default(cuid())
+  userId             String
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId     String
+  subscription       Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  amount             Int
+  currency           String       @default("INR")
+  status             String       // created, authorized, captured, failed
+  razorpayPaymentId  String?
+  razorpayOrderId    String?
+  razorpaySignature  String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 }
 

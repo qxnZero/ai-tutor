@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Bell,
   Settings,
+  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -416,6 +417,15 @@ export function SiteHeader() {
                     >
                       <User className="mr-2 h-4 w-4" />
                       Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/subscription"
+                      className="flex items-center cursor-pointer"
+                    >
+                      <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                      Subscription
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
