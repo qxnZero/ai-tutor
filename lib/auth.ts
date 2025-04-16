@@ -1,8 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-// Using a custom adapter instead of the default PrismaAdapter
-// import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import argon2 from "argon2"; // Import argon2
 
@@ -11,7 +10,15 @@ if (process.env.NODE_ENV === "development") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
+// Ensure NEXTAUTH_URL is properly set
+const nextAuthUrl =
+  process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
+
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV === "development",
   // Custom adapter for our simplified schema
   adapter: {
     createUser: async (data) => {
@@ -165,10 +172,10 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    error: "/auth/error",
   },
   callbacks: {
     async session({ session, token }) {
+      // Apply token data to session
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name;
@@ -208,15 +215,14 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signIn({ user }) {
       // Handle successful sign-in
-      console.log("User signed in:", user.email);
     },
     async signOut() {
       // Clear session data on sign out
-      console.log("User signed out");
     },
     async session() {
       // Session is active
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
 };

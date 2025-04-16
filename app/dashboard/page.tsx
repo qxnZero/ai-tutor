@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+
 import { prisma } from "@/lib/prisma";
 import {
   Card,
@@ -33,10 +34,24 @@ export default async function DashboardPage() {
     redirect("/auth/signin?callbackUrl=/dashboard");
   }
 
+  // Get user from database to ensure we have the ID
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email as string,
+    },
+  });
+
+  if (!user) {
+    console.log("Dashboard - User not found in database");
+    redirect("/auth/signin");
+  }
+
+  console.log("Dashboard - User found:", { id: user.id, email: user.email });
+
   // Get user's courses
   const courses = await prisma.course.findMany({
     where: {
-      userId: session.user.id,
+      userId: user.id,
     },
     include: {
       _count: {
@@ -66,7 +81,7 @@ export default async function DashboardPage() {
       const progress = await prisma.userProgress.findFirst({
         where: {
           courseId: course.id,
-          userId: session.user.id,
+          userId: user.id,
         },
       });
 
@@ -90,7 +105,7 @@ export default async function DashboardPage() {
   // Get user's bookmarks
   const bookmarks = await prisma.bookmark.findMany({
     where: {
-      userId: session.user.id,
+      userId: user.id,
     },
     include: {
       lesson: {
@@ -112,7 +127,7 @@ export default async function DashboardPage() {
   // Get user's notes
   const notes = await prisma.note.findMany({
     where: {
-      userId: session.user.id,
+      userId: user.id,
     },
     include: {
       lesson: {

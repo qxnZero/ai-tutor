@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Bell,
   Settings,
+  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -418,6 +419,15 @@ export function SiteHeader() {
                       Profile
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/subscription"
+                      className="flex items-center cursor-pointer"
+                    >
+                      <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                      Subscription
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
@@ -446,7 +456,7 @@ export function SiteHeader() {
                 onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                 className="bg-background/40 backdrop-blur-sm border border-border/20 shadow-sm hover:bg-background/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-foreground">
                   <svg
                     className="h-4 w-4"
                     aria-hidden="true"
