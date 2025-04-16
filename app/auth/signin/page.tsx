@@ -99,11 +99,23 @@ function SignInForm() {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
+      console.log("Signing in with Google, callbackUrl:", callbackUrl);
       // Ensure we have a valid callback URL and force account selection
-      await signIn("google", {
+      const result = await signIn("google", {
         callbackUrl: callbackUrl || "/dashboard",
         prompt: "select_account",
+        redirect: false,
       });
+
+      console.log("Google sign in result:", result);
+
+      if (result?.error) {
+        toast.error(`Authentication error: ${result.error}`);
+        setIsGoogleLoading(false);
+      } else if (result?.url) {
+        // Manually redirect to maintain the loading state
+        window.location.href = result.url;
+      }
     } catch (error) {
       console.error("Google sign in error:", error);
       toast.error("Failed to sign in with Google");

@@ -5,21 +5,44 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
+    console.log("GET /api/courses - Starting request");
     // Get the current user session
     const session = await getServerSession(authOptions);
+    console.log("GET /api/courses - Session:", JSON.stringify(session));
 
     if (!session?.user) {
+      console.log("GET /api/courses - No user in session");
       return NextResponse.json(
         { error: "Unauthorized. Please sign in." },
         { status: 401 }
       );
     }
 
+    // Get user from database to ensure we have the ID
+    console.log(
+      "GET /api/courses - Looking up user with email:",
+      session.user.email
+    );
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email as string,
+      },
+    });
+    console.log(
+      "GET /api/courses - User lookup result:",
+      user ? `Found user with ID ${user.id}` : "User not found"
+    );
+
+    if (!user) {
+      console.log("GET /api/courses - User not found in database");
+      return NextResponse.json({ error: "User not found." }, { status: 401 });
+    }
+
     // Get courses for the current user
     const courses = await prisma.course.findMany({
       where: {
         OR: [
-          { userId: session.user.id }, // User's own courses
+          { userId: user.id }, // User's own courses
           { isPublic: true }, // Public courses
         ],
       },
@@ -70,11 +93,18 @@ export async function GET() {
       })
     );
 
+    console.log(
+      "GET /api/courses - Successfully fetched courses:",
+      coursesWithProgress.length
+    );
     return NextResponse.json(coursesWithProgress);
   } catch (error) {
     console.error("Error fetching courses:", error);
     return NextResponse.json(
-      { error: "Failed to fetch courses" },
+      {
+        error: "Failed to fetch courses",
+        message: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

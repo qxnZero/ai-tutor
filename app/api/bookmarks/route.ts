@@ -1,111 +1,180 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { z } from "zod"
+import { type NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
 const bookmarkSchema = z.object({
   lessonId: z.string(),
-})
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json()
+    // Get user from database to ensure we have the ID
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email as string,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 401 });
+    }
+
+    const body = await req.json();
 
     // Validate input
-    const result = bookmarkSchema.safeParse(body)
+    const result = bookmarkSchema.safeParse(body);
     if (!result.success) {
-      return NextResponse.json({ message: "Invalid input data", errors: result.error.format() }, { status: 400 })
+      return NextResponse.json(
+        { message: "Invalid input data", errors: result.error.format() },
+        { status: 400 }
+      );
     }
 
-    const { lessonId } = body
+    const { lessonId } = body;
 
     // Check if lesson exists
     const lesson = await prisma.lesson.findUnique({
       where: {
         id: lessonId,
       },
-    })
+    });
 
     if (!lesson) {
-      return NextResponse.json({ message: "Lesson not found" }, { status: 404 })
+      return NextResponse.json(
+        { message: "Lesson not found" },
+        { status: 404 }
+      );
     }
 
     // Check if bookmark already exists
     const existingBookmark = await prisma.bookmark.findFirst({
       where: {
         lessonId,
-        userId: session.user.id,
+        userId: user.id,
       },
-    })
+    });
 
     if (existingBookmark) {
-      return NextResponse.json({ message: "Lesson already bookmarked", bookmark: existingBookmark }, { status: 200 })
+      return NextResponse.json(
+        { message: "Lesson already bookmarked", bookmark: existingBookmark },
+        { status: 200 }
+      );
     }
 
     // Create bookmark
     const bookmark = await prisma.bookmark.create({
       data: {
         lessonId,
-        userId: session.user.id,
+        userId: user.id,
       },
-    })
+    });
 
-    return NextResponse.json({ message: "Lesson bookmarked successfully", bookmark }, { status: 201 })
+    return NextResponse.json(
+      { message: "Lesson bookmarked successfully", bookmark },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("Error bookmarking lesson:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error bookmarking lesson:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    console.log("GET /api/bookmarks - Starting request");
+    const session = await getServerSession(authOptions);
+    console.log("GET /api/bookmarks - Session:", JSON.stringify(session));
 
     if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      console.log("GET /api/bookmarks - No user in session");
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url)
-    const lessonId = searchParams.get("lessonId")
+    // Get user from database to ensure we have the ID
+    console.log(
+      "GET /api/bookmarks - Looking up user with email:",
+      session.user.email
+    );
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email as string,
+      },
+    });
+    console.log(
+      "GET /api/bookmarks - User lookup result:",
+      user ? `Found user with ID ${user.id}` : "User not found"
+    );
+
+    if (!user) {
+      console.log("GET /api/bookmarks - User not found in database");
+      return NextResponse.json({ message: "User not found" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const lessonId = searchParams.get("lessonId");
 
     if (!lessonId) {
-      return NextResponse.json({ message: "Lesson ID is required" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Lesson ID is required" },
+        { status: 400 }
+      );
     }
 
     const bookmark = await prisma.bookmark.findFirst({
       where: {
         lessonId,
-        userId: session.user.id,
+        userId: user.id,
       },
-    })
+    });
 
-    return NextResponse.json({ bookmark })
+    return NextResponse.json({ bookmark });
   } catch (error) {
-    console.error("Error fetching bookmark:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error fetching bookmark:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url)
-    const bookmarkId = searchParams.get("id")
+    // Get user from database to ensure we have the ID
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email as string,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const bookmarkId = searchParams.get("id");
 
     if (!bookmarkId) {
-      return NextResponse.json({ message: "Bookmark ID is required" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Bookmark ID is required" },
+        { status: 400 }
+      );
     }
 
     // Check if bookmark exists and belongs to user
@@ -113,14 +182,17 @@ export async function DELETE(req: NextRequest) {
       where: {
         id: bookmarkId,
       },
-    })
+    });
 
     if (!bookmark) {
-      return NextResponse.json({ message: "Bookmark not found" }, { status: 404 })
+      return NextResponse.json(
+        { message: "Bookmark not found" },
+        { status: 404 }
+      );
     }
 
-    if (bookmark.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    if (bookmark.userId !== user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Delete bookmark
@@ -128,12 +200,17 @@ export async function DELETE(req: NextRequest) {
       where: {
         id: bookmarkId,
       },
-    })
+    });
 
-    return NextResponse.json({ message: "Bookmark removed successfully" }, { status: 200 })
+    return NextResponse.json(
+      { message: "Bookmark removed successfully" },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("Error removing bookmark:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error removing bookmark:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
-

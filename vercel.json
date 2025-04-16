@@ -6,6 +6,7 @@
   "outputDirectory": ".next",
   "regions": ["iad1"],
   "env": {
+    "NODE_ENV": "production",
     "NEXTAUTH_URL": {
       "description": "The URL of your site (e.g., https://example.com)"
     },

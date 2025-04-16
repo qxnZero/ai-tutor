@@ -446,7 +446,7 @@ export function SiteHeader() {
                 onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                 className="bg-background/40 backdrop-blur-sm border border-border/20 shadow-sm hover:bg-background/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-foreground">
                   <svg
                     className="h-4 w-4"
                     aria-hidden="true"
