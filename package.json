@@ -8,8 +8,6 @@
     "build:production": "NODE_ENV=production prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "node scripts/deploy.js",
-    "deploy:vercel": "node scripts/deploy-vercel.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
