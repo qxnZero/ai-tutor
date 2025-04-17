@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+// CourseButton import removed
 import type { Course } from "@prisma/client";
 // Assuming you have a SessionProvider or similar if courses depend on user session
 
@@ -186,8 +187,13 @@ export default function CourseList() {
                 </div>
               </CardContent>
               <CardFooter className="bg-muted/50 px-4 py-3 border-t">
-                <Button asChild className="w-full py-1.5 text-sm h-auto">
-                  <Link href={`/courses/${course.id}`}>View Course</Link>
+                <Button
+                  className="w-full py-1.5 text-sm h-auto"
+                  asChild
+                >
+                  <Link href={`/courses/${course.id}`}>
+                    View Course
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>

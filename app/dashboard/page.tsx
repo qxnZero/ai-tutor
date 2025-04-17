@@ -258,7 +258,9 @@ export default async function DashboardPage() {
                             </p>
                           </div>
                           <Button size="sm" variant="outline" asChild>
-                            <Link href={`/courses/${course.id}`}>Continue</Link>
+                            <Link href={`/courses/${course.id}`}>
+                              Continue
+                            </Link>
                           </Button>
                         </div>
                         <Progress value={course.progress} className="h-2" />

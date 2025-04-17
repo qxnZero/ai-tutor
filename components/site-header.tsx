@@ -32,7 +32,7 @@ export function SiteHeader() {
           <nav className="hidden md:flex items-center gap-2">
             <NavItem href="/dashboard" label="Dashboard" active={isActive("/dashboard")} />
             <NavItem href="/courses" label="Courses" active={isActive("/courses")} />
-            <NavItem href="/courses?tab=create" label="Create Course" active={pathname === "/courses" && pathname.includes("tab=create")} />
+            {/* <NavItem href="/courses?tab=create" label="Create Course" active={pathname === "/courses" && pathname.includes("tab=create")} /> */}
             <NavItem href="/bookmarks" label="Bookmarks" active={isActive("/bookmarks")} />
             <NavItem href="/notes" label="Notes" active={isActive("/notes")} />
             <NavItem href="/subscription" label="Subscription" active={isActive("/subscription")} />

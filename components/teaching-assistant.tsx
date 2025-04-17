@@ -238,7 +238,7 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
               ),
               // Other components remain the same
               pre: ({ node, ...props }) => (
-                <pre className="bg-zinc-900 p-4 rounded-md overflow-auto my-2" {...props} />
+                <pre className="bg-zinc-900 p-4 rounded-md overflow-auto my-2 w-full" {...props} />
               ),
               code: ({ node, inline, className, children, ...props }) => (
                 inline ? (
@@ -294,7 +294,7 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
             rehypePlugins={[rehypeRaw, rehypeHighlight]}
             components={{
               pre: ({ node, ...props }) => (
-                <pre className="bg-zinc-900 p-4 rounded-md overflow-auto my-2" {...props} />
+                <pre className="bg-zinc-900 p-4 rounded-md overflow-auto my-2 w-full" {...props} />
               ),
               code: ({ node, inline, className, children, ...props }) => (
                 inline ? (
@@ -372,7 +372,7 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
           className="ta-overlay"
           ref={overlayRef}
         >
-          <div className="container mx-auto h-full flex flex-col max-w-5xl pt-5 pb-6 px-6">
+          <div className="h-full flex flex-col w-full pt-5 pb-6 px-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-5 pb-4 border-b">
               <div className="flex items-center gap-3">
@@ -395,28 +395,19 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
 
             {/* Chat Area */}
             <ScrollArea className="flex-1 pr-5 -mr-5">
-              <div className="space-y-6 pb-5 px-1">
+              <div className="space-y-6 pb-5 px-1 max-w-none">
                 {messages.map((message, index) => (
                   <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`max-w-[80%] rounded-xl p-5 shadow-sm ${
-                        message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted/80"
+                      className={`max-w-[95%] rounded-xl p-5 ${message.role === "user"
+                        ? "bg-primary text-primary-foreground border-blue-500 border-2"
+                        : "bg-muted dark:bg-zinc-800 border-green-500 border-2"
                       }`}
                     >
-                      <div className="flex items-start gap-3">
-                        {message.role === "assistant" && (
-                          <div className="bg-primary/20 p-2 rounded-full">
-                            <Bot className="h-5 w-5 text-primary" />
-                          </div>
-                        )}
-                        <div className="markdown-content">
+                      <div className="flex items-start">
+                        <div className="markdown-content w-full">
                           {renderMessageContent(message, index)}
                         </div>
-                        {message.role === "user" && (
-                          <div className="bg-primary p-2 rounded-full">
-                            <User className="h-5 w-5 text-primary-foreground" />
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -447,7 +438,7 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
                   ) : (
                     <Send className="h-5 w-5 mr-2" />
                   )}
-                  Send
+                  Ask TA
                 </Button>
               </div>
             </div>
