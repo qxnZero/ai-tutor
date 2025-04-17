@@ -96,6 +96,7 @@ export default function TeachingAssistant({ courseId, lessonId, moduleName, less
     ])
   }, [lessonName])
 
+
   useEffect(() => {
     scrollToBottom()
   }, [messages, isOverlayOpen])

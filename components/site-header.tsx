@@ -72,16 +72,17 @@ export function SiteHeader() {
                 <Button
                   size="sm"
                   variant="ghost"
+                  className="rounded-md hover:bg-muted/50 transition-colors border-1"
                   onClick={() => signIn(undefined, { callbackUrl: "/dashboard" })}
                 >
                   Sign In
                 </Button>
-                <Button
+                {/* <Button
                   size="sm"
                   onClick={() => signIn(undefined, { callbackUrl: "/dashboard" })}
                 >
                   Sign Up
-                </Button>
+                </Button> */}
               </div>
             )}
           </div>
