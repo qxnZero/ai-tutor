@@ -1,19 +1,17 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
-// Initialize Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_SECRET_ID!,
 });
 
-// Subscription plans
 export const SUBSCRIPTION_PLANS = {
   MONTHLY: {
     id: "monthly",
     name: "Premium Monthly",
     description: "Unlimited access to all courses and features",
-    price: 49900, // ₹499 (in paise)
+    price: 49900,
     interval: "monthly",
     features: [
       "Unlimited course access",
@@ -28,7 +26,7 @@ export const SUBSCRIPTION_PLANS = {
     name: "Premium Yearly",
     description:
       "Unlimited access to all courses and features with 2 months free",
-    price: 499900, // ₹4,999 (in paise)
+    price: 499900,
     interval: "yearly",
     features: [
       "All monthly features",
@@ -38,7 +36,7 @@ export const SUBSCRIPTION_PLANS = {
   },
 };
 
-// Create a Razorpay order
+// Create Razorpay order
 export async function createOrder(
   amount: number,
   currency: string = "INR",
@@ -101,7 +99,7 @@ export async function createSubscription(
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       // Using any to bypass TypeScript checking for this example
-      // In production, use the correct types from Razorpay
+      // to be currected In production, use the correct types from Razorpay
       customer_id: customerId as any,
       total_count: totalCount as any,
     });
