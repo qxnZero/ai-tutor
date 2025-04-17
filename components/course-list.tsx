@@ -161,7 +161,7 @@ export default function CourseList() {
                 You haven't created any courses yet.
               </p>
               <Button asChild>
-                <Link href="/ai-tutor">Try AI Tutor</Link>
+                <Link href="/courses?tab=create">Create a Course</Link>
               </Button>
             </>
           )}

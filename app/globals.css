@@ -92,3 +92,148 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Markdown content styling */
+.markdown-content {
+  @apply text-foreground;
+}
+
+.markdown-content pre {
+  @apply bg-zinc-900 p-4 rounded-md overflow-auto my-2 text-sm;
+}
+
+.markdown-content code {
+  @apply font-mono text-sm;
+}
+
+.markdown-content code:not(pre code) {
+  @apply bg-zinc-800 px-1 py-0.5 rounded text-pink-400;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  @apply font-bold;
+}
+
+.markdown-content h1 {
+  @apply text-xl my-3;
+}
+
+.markdown-content h2 {
+  @apply text-lg my-2;
+}
+
+.markdown-content h3 {
+  @apply text-base my-2;
+}
+
+.markdown-content p {
+  @apply my-2;
+}
+
+.markdown-content ul {
+  @apply list-disc pl-6 my-2;
+}
+
+.markdown-content ol {
+  @apply list-decimal pl-6 my-2;
+}
+
+.markdown-content li {
+  @apply my-1;
+}
+
+.markdown-content a {
+  @apply text-blue-400 hover:underline;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-zinc-500 pl-4 italic my-2;
+}
+
+.markdown-content table {
+  @apply border-collapse border border-zinc-700 my-2 w-full;
+}
+
+.markdown-content th {
+  @apply border border-zinc-700 px-4 py-2 bg-zinc-800;
+}
+
+.markdown-content td {
+  @apply border border-zinc-700 px-4 py-2;
+}
+
+.markdown-content img {
+  @apply max-w-full h-auto rounded-md my-2;
+}
+
+/* Lesson content specific styling */
+.lesson-content {
+  @apply text-foreground;
+}
+
+.lesson-content pre {
+  @apply bg-zinc-900 p-4 rounded-md overflow-auto my-4 text-sm;
+}
+
+.lesson-content code {
+  @apply font-mono text-sm;
+}
+
+.lesson-content code:not(pre code) {
+  @apply bg-zinc-800 px-1 py-0.5 rounded text-pink-400;
+}
+
+.lesson-content h1 {
+  @apply text-2xl font-bold my-4;
+}
+
+.lesson-content h2 {
+  @apply text-xl font-bold my-3;
+}
+
+.lesson-content h3 {
+  @apply text-lg font-bold my-2;
+}
+
+.lesson-content p {
+  @apply my-3;
+}
+
+.lesson-content ul {
+  @apply list-disc pl-6 my-4;
+}
+
+.lesson-content ol {
+  @apply list-decimal pl-6 my-4;
+}
+
+.lesson-content li {
+  @apply my-1;
+}
+
+.lesson-content a {
+  @apply text-blue-400 hover:underline;
+}
+
+.lesson-content blockquote {
+  @apply border-l-4 border-zinc-500 pl-4 italic my-4;
+}
+
+.lesson-content table {
+  @apply border-collapse border border-zinc-700 my-4 w-full;
+}
+
+.lesson-content th {
+  @apply border border-zinc-700 px-4 py-2 bg-zinc-800;
+}
+
+.lesson-content td {
+  @apply border border-zinc-700 px-4 py-2;
+}
+
+.lesson-content img {
+  @apply max-w-full h-auto rounded-md my-4;
+}

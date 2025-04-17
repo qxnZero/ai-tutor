@@ -17,7 +17,7 @@ export function SiteHeader() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b">
+    <header className="sticky top-2 z-50 w-full bg-background/80 backdrop-blur-md border-b mb-3">
       <div className="container mx-auto px-4">
         <div className="flex h-12 items-center justify-between">
           {/* Logo - Left End */}
@@ -32,7 +32,7 @@ export function SiteHeader() {
           <nav className="hidden md:flex items-center gap-2">
             <NavItem href="/dashboard" label="Dashboard" active={isActive("/dashboard")} />
             <NavItem href="/courses" label="Courses" active={isActive("/courses")} />
-            <NavItem href="/ai-tutor" label="AI Tutor" active={isActive("/ai-tutor")} />
+            <NavItem href="/courses?tab=create" label="Create Course" active={pathname === "/courses" && pathname.includes("tab=create")} />
             <NavItem href="/bookmarks" label="Bookmarks" active={isActive("/bookmarks")} />
             <NavItem href="/notes" label="Notes" active={isActive("/notes")} />
             <NavItem href="/subscription" label="Subscription" active={isActive("/subscription")} />
