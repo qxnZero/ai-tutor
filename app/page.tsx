@@ -184,7 +184,7 @@ export default function Home() {
                 <div className="bg-gradient-to-br from-amber-400/20 to-amber-400/5 p-4 rounded-full mb-4">
                   <Zap className="h-8 w-8 text-amber-500" />
                 </div>
-                <h3 className="text-xl font-medium">Master New Skills Faster</h3>
+                <h3 className="text-xl font-medium text-foreground">Master New Skills Faster</h3>
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed text-center">
                 Learn new subjects faster with interactive explanations and practical examples that reinforce theoretical concepts.
@@ -197,7 +197,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-24 bg-muted/30">
         <div className="container px-4 mx-auto text-center max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-8">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-foreground">
             Ready to transform how you learn?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
