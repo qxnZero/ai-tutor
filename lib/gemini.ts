@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 type Lesson = {
@@ -81,10 +80,8 @@ export async function generateCourseContent(
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
-    // Extract JSON from the response
     console.log("Raw response length:", responseText.length);
 
-    // Log a sample of the response for debugging
     const sampleLength = 200;
     console.log(
       "Response sample (first 200 chars):",
@@ -156,7 +153,6 @@ export async function generateCourseContent(
         }
       }
 
-      // If we've reached here, all parsing attempts have failed
       console.error("All JSON parsing approaches failed");
       throw new Error(
         "Failed to parse course data: Could not extract valid JSON from the response"

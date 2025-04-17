@@ -3,14 +3,13 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import argon2 from "argon2"; // Import argon2
+import argon2 from "argon2";
 
 // Disable certificate validation in development mode
 if (process.env.NODE_ENV === "development") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
-// Ensure NEXTAUTH_URL is properly set
 const nextAuthUrl =
   process.env.NEXTAUTH_URL ||
   (process.env.VERCEL_URL
@@ -19,9 +18,8 @@ const nextAuthUrl =
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
-  // Custom adapter for our simplified schema
   adapter: {
-    createUser: async (data) => {
+    createUser: async (daita) => {
       const user = await prisma.user.create({
         data: {
           name: data.name,
@@ -54,7 +52,6 @@ export const authOptions: NextAuthOptions = {
       });
     },
     linkAccount: async (account) => {
-      // Update user with account details instead of creating a separate account
       await prisma.user.update({
         where: { id: account.userId },
         data: {
@@ -104,10 +101,8 @@ export const authOptions: NextAuthOptions = {
           prompt: "select_account",
           access_type: "offline",
           response_type: "code",
-          // Don't use approval_prompt as it conflicts with prompt parameter
         },
       },
-      // Use profile callback to ensure we get all user data
       profile(profile) {
         return {
           id: profile.sub,
@@ -134,30 +129,25 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        // Ensure user exists and the password field contains the Argon2 hash
         if (!user || !user.password) {
           return null;
         }
 
         let isPasswordValid = false;
         try {
-          // Verify the entered password against the stored Argon2 hash
-          // argon2.verify takes the hash first, then the plain password
           isPasswordValid = await argon2.verify(
             user.password,
             credentials.password
           );
         } catch (error) {
-          // Log verification errors (e.g., malformed hash) but don't expose details
           console.error("Argon2 verification error:", error);
-          return null; // Treat verification errors as invalid password
+          return null;
         }
 
         if (!isPasswordValid) {
           return null;
         }
 
-        // Return user object without the password hash
         return {
           id: user.id,
           email: user.email,
@@ -185,14 +175,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user, account, profile }) {
-      // Initial sign in
       if (user) {
         token.id = user.id;
       }
 
-      // If using Google provider and we have profile data
       if (account?.provider === "google" && profile) {
-        // Ensure we're using the most up-to-date profile info
         token.name = profile.name;
         token.email = profile.email;
         token.picture = profile.picture;
@@ -201,26 +188,20 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async signIn({ user, account, profile }) {
-      // Always allow sign in
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
   },
   events: {
     async signIn({ user }) {
-      // Handle successful sign-in
     },
     async signOut() {
-      // Clear session data on sign out
     },
     async session() {
-      // Session is active
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
