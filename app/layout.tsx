@@ -12,7 +12,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "AI Tutor - Learn Anything with AI",
   description: "Generate personalized courses on any topic with AI",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -32,7 +31,7 @@ export default function RootLayout({
           >
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
-              <main className="flex-1 pt-24">{children}</main>
+              <main className="flex-1 ">{children}</main>
             </div>
             <Toaster position="top-right" />
           </ThemeProvider>

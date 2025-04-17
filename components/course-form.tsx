@@ -65,10 +65,10 @@ export default function CourseForm() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardContent className="pt-6">
+    <Card className="w-full max-w-3xl mx-auto shadow-sm">
+      <CardContent className="pt-4 pb-4">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="topic">Course Topic</Label>
@@ -100,15 +100,15 @@ export default function CourseForm() {
                           onValueChange={(value) => {
                             if (value) field.onChange(value)
                           }}
-                          className="justify-start mt-2"
+                          className="justify-start mt-2 gap-2"
                         >
-                          <ToggleGroupItem value="Beginner" className="px-4 py-2">
+                          <ToggleGroupItem value="Beginner" className="px-5 py-2 rounded-md">
                             Beginner
                           </ToggleGroupItem>
-                          <ToggleGroupItem value="Intermediate" className="px-4 py-2">
+                          <ToggleGroupItem value="Intermediate" className="px-5 py-2 rounded-md">
                             Intermediate
                           </ToggleGroupItem>
-                          <ToggleGroupItem value="Advanced" className="px-4 py-2">
+                          <ToggleGroupItem value="Advanced" className="px-5 py-2 rounded-md">
                             Advanced
                           </ToggleGroupItem>
                         </ToggleGroup>
@@ -153,7 +153,11 @@ export default function CourseForm() {
               )}
             </div>
 
-            <Button type="submit" className="w-full bg-slate-500 hover:bg-slate-600" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full py-4 text-sm font-medium bg-slate-500 hover:bg-slate-600"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

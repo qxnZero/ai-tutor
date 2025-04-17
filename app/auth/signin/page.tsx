@@ -124,33 +124,33 @@ function SignInForm() {
   };
 
   return (
-    <div className="container flex min-h-screen w-screen flex-col items-center justify-center">
-      {" "}
-      {/* Use min-h-screen */}
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <Card>
-          <CardHeader className="space-y-1">
+    <div className="container flex min-h-screen w-screen flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
+        <div className="flex flex-col items-center mb-6 space-y-2">
+          <h1 className="text-3xl font-bold">AI Tutor</h1>
+          <p className="text-muted-foreground">Your personalized learning assistant</p>
+        </div>
+        <Card className="border-none shadow-lg dark:shadow-primary/5 sm:border sm:rounded-xl">
+          <CardHeader className="space-y-2 pb-2">
             <CardTitle className="text-center text-2xl font-bold">
-              Sign in
-            </CardTitle>{" "}
-            {/* Center title */}
+              Welcome Back
+            </CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to sign in
-            </CardDescription>{" "}
-            {/* Center description */}
+              Sign in to continue your learning journey
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
               variant="outline"
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading}
-              className="w-full"
+              className="w-full rounded-md border-muted-foreground/20 hover:bg-muted/50 transition-colors"
             >
               {isGoogleLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <svg
-                  className="mr-2 h-4 w-4"
+                  className="mr-2 h-5 w-5"
                   aria-hidden="true"
                   focusable="false"
                   data-prefix="fab"
@@ -168,13 +168,13 @@ function SignInForm() {
               Sign in with Google
             </Button>
 
-            <div className="relative">
+            <div className="relative my-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t border-muted-foreground/20" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-card px-2 text-muted-foreground">
+                  or continue with email
                 </span>
               </div>
             </div>
@@ -189,17 +189,18 @@ function SignInForm() {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">Email</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="john.doe@example.com"
                           autoComplete="new-email"
+                          className="rounded-md h-10 border-muted-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -207,21 +208,31 @@ function SignInForm() {
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
+                    <FormItem className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <FormLabel className="text-sm font-medium">Password</FormLabel>
+                        <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                          Forgot password?
+                        </Link>
+                      </div>
                       <FormControl>
                         <Input
                           type="password"
                           placeholder="********"
                           autoComplete="new-password"
+                          className="rounded-md h-10 border-muted-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full rounded-md h-10 mt-2 bg-primary hover:bg-primary/90 transition-colors"
+                  disabled={isLoading}
+                >
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -234,15 +245,13 @@ function SignInForm() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="pt-0 pb-6 px-8 flex justify-center">
             <div className="text-sm text-muted-foreground text-center">
               Don't have an account?{" "}
               <Link
                 href="/auth/signup"
-                className="font-medium text-primary underline-offset-4 hover:underline"
+                className="font-medium text-primary hover:underline transition-colors"
               >
-                {" "}
-                {/* Added font-medium */}
                 Sign up
               </Link>
             </div>
@@ -257,8 +266,11 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="container flex min-h-screen w-screen flex-col items-center justify-center">
-          Loading...
+        <div className="container flex min-h-screen w-screen flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30">
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="text-lg font-medium">Loading...</span>
+          </div>
         </div>
       }
     >

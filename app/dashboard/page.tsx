@@ -147,16 +147,16 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex justify-between items-center mb-5">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <Button asChild>
-          <Link href="/#generate-course">Create New Course</Link>
+          <Link href="/courses?tab=create">Create Course</Link>
         </Button>
       </div>
 
       <Suspense fallback={<DashboardLoading />}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
@@ -222,10 +222,10 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2 space-y-5">
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xl font-bold">Recent Courses</h2>
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/courses">View all</Link>
@@ -238,8 +238,8 @@ export default async function DashboardPage() {
                       You haven&apos;t created any courses yet.
                     </p>
                     <Button asChild>
-                      <Link href="/#generate-course">
-                        Create Your First Course
+                      <Link href="/courses?tab=create">
+                        Create Course
                       </Link>
                     </Button>
                   </CardContent>
@@ -258,7 +258,9 @@ export default async function DashboardPage() {
                             </p>
                           </div>
                           <Button size="sm" variant="outline" asChild>
-                            <Link href={`/courses/${course.id}`}>Continue</Link>
+                            <Link href={`/courses/${course.id}`}>
+                              Continue
+                            </Link>
                           </Button>
                         </div>
                         <Progress value={course.progress} className="h-2" />
@@ -270,7 +272,7 @@ export default async function DashboardPage() {
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xl font-bold">Recent Notes</h2>
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/notes">View all</Link>
@@ -319,7 +321,7 @@ export default async function DashboardPage() {
 
           <div>
             <div className="mb-4">
-              <h2 className="text-xl font-bold mb-4">Bookmarks</h2>
+              <h2 className="text-xl font-bold mb-3">Bookmarks</h2>
               {bookmarks.length === 0 ? (
                 <Card>
                   <CardContent className="py-6 text-center">

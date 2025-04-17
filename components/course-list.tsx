@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+// CourseButton import removed
 import type { Course } from "@prisma/client";
 // Assuming you have a SessionProvider or similar if courses depend on user session
 
@@ -136,13 +137,13 @@ export default function CourseList() {
   // --- Render Content ---
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-3 mb-5">
         <h2 className="text-2xl font-bold">Your Courses</h2>
         <div className="relative w-full md:w-64">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search your courses..."
-            className="pl-9" // Increased padding
+            className="pl-9 h-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -161,37 +162,38 @@ export default function CourseList() {
                 You haven't created any courses yet.
               </p>
               <Button asChild>
-                <Link href="/course-form">Create your first course</Link>
+                <Link href="/courses?tab=create">Create a Course</Link>
               </Button>
             </>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCourses.map((course) => (
-            <Card key={course.id} className="overflow-hidden flex flex-col">
-              {/* Added flex */}
-              <CardContent className="p-6 flex-grow">
-                {/* Added flex-grow */}
-                <Badge variant="outline" className="mb-2">
+            <Card key={course.id} className="overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-4 flex-grow">
+                <Badge variant="outline" className="mb-2 px-2 py-0.5 text-xs">
                   {course.difficulty}
                 </Badge>
-                <h3 className="text-xl font-semibold mb-2 line-clamp-2">
+                <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                   {course.title}
                 </h3>
-                {/* Added line-clamp */}
-                <div className="flex items-center text-sm text-muted-foreground mb-4">
+                <div className="flex items-center text-sm text-muted-foreground mb-3">
                   <span>{course._count.lessons} lessons</span>
                 </div>
-                <Progress value={course.progress || 0} className="h-2 mb-2" />
-                <div className="text-right text-sm text-muted-foreground">
+                <Progress value={course.progress || 0} className="h-1.5 mb-1.5" />
+                <div className="text-right text-xs text-muted-foreground">
                   {course.progress || 0}% complete
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/50 px-6 py-4 border-t">
-                {/* Added border-t */}
-                <Button asChild className="w-full">
-                  <Link href={`/courses/${course.id}`}>View Course</Link>
+              <CardFooter className="bg-muted/50 px-4 py-3 border-t">
+                <Button
+                  className="w-full py-1.5 text-sm h-auto"
+                  asChild
+                >
+                  <Link href={`/courses/${course.id}`}>
+                    View Course
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>

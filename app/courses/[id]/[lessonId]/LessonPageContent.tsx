@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AIInstructor from "@/components/ai-instructor";
+import TeachingAssistant from "@/components/teaching-assistant";
 import LessonKnowledgeTest from "@/components/lesson-knowledge-test";
 import LessonNotes from "@/components/lesson-notes";
 import LessonBookmark from "@/components/lesson-bookmark";
+
+// Markdown components
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 type LessonPageContentProps = {
   lesson: any;
@@ -34,19 +41,88 @@ export default function LessonPageContent({
             Back to Outline
           </Link>
         </Button>
-        <LessonBookmark lessonId={lesson.id} />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1.5"
+            onClick={() => document.dispatchEvent(new CustomEvent('toggle-teaching-assistant'))}
+          >
+            <GraduationCap className="h-4 w-4" />
+            Teaching Assistant
+          </Button>
+          <LessonBookmark lessonId={lesson.id} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3">
+      <div className="grid grid-cols-1 gap-8">
+        <div>
           <div className="mb-2 text-sm text-muted-foreground">
             Lesson {currentLessonIndex + 1} of {currentModule.lessons.length}
           </div>
           <h1 className="text-3xl font-bold mb-6">{lesson.title}</h1>
 
-          <div className="prose prose-slate max-w-none">
+          <div className="prose prose-slate dark:prose-invert max-w-none lesson-content">
             {lesson.content ? (
-              <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, rehypeHighlight]}
+                components={{
+                  pre: ({ node, ...props }) => (
+                    <pre className="bg-zinc-900 p-4 rounded-md overflow-auto my-4" {...props} />
+                  ),
+                  code: ({ node, inline, className, children, ...props }) => (
+                    inline ? (
+                      <code className="bg-zinc-800 px-1 py-0.5 rounded text-pink-400" {...props}>{children}</code>
+                    ) : (
+                      <code className={className} {...props}>{children}</code>
+                    )
+                  ),
+                  a: ({ node, ...props }) => (
+                    <a className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                  ),
+                  ul: ({ node, ...props }) => (
+                    <ul className="list-disc pl-6 my-4" {...props} />
+                  ),
+                  ol: ({ node, ...props }) => (
+                    <ol className="list-decimal pl-6 my-4" {...props} />
+                  ),
+                  li: ({ node, ...props }) => (
+                    <li className="my-1" {...props} />
+                  ),
+                  h1: ({ node, ...props }) => (
+                    <h1 className="text-2xl font-bold my-4" {...props} />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2 className="text-xl font-bold my-3" {...props} />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3 className="text-lg font-bold my-2" {...props} />
+                  ),
+                  p: ({ node, ...props }) => (
+                    <p className="my-3" {...props} />
+                  ),
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote className="border-l-4 border-zinc-500 pl-4 italic my-4" {...props} />
+                  ),
+                  table: ({ node, ...props }) => (
+                    <div className="overflow-auto my-4">
+                      <table className="border-collapse border border-zinc-700" {...props} />
+                    </div>
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th className="border border-zinc-700 px-4 py-2 bg-zinc-800" {...props} />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td className="border border-zinc-700 px-4 py-2" {...props} />
+                  ),
+                  img: ({ node, ...props }) => (
+                    <img className="max-w-full h-auto rounded-md my-4" {...props} />
+                  ),
+                }}
+              >
+                {lesson.content}
+              </ReactMarkdown>
             ) : (
               <p>No content available for this lesson.</p>
             )}
@@ -62,7 +138,14 @@ export default function LessonPageContent({
                       <h3 className="text-lg font-medium">
                         {index + 1}. {key}
                       </h3>
-                      <p>{value}</p>
+                      <div className="prose dark:prose-invert">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeRaw, rehypeHighlight]}
+                        >
+                          {value}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   )
                 )}
@@ -72,9 +155,14 @@ export default function LessonPageContent({
 
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-4">Summary</h2>
-            <p className="text-muted-foreground">
-              {lesson.description || "No summary available for this lesson."}
-            </p>
+            <div className="prose dark:prose-invert text-muted-foreground">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+              >
+                {lesson.description || "No summary available for this lesson."}
+              </ReactMarkdown>
+            </div>
           </div>
 
           <LessonKnowledgeTest lessonId={lesson.id} />
@@ -102,17 +190,16 @@ export default function LessonPageContent({
               </Button>
             )}
           </div>
-        </div>
-
-        <div className="lg:col-span-1 space-y-6">
-          <AIInstructor
-            courseId={course.id}
-            lessonId={lesson.id}
-            moduleName={currentModule.title}
-            lessonName={lesson.title}
-          />
           <LessonNotes lessonId={lesson.id} />
         </div>
+
+        {/* Teaching Assistant is now a floating component */}
+        <TeachingAssistant
+          courseId={course.id}
+          lessonId={lesson.id}
+          moduleName={currentModule.title}
+          lessonName={lesson.title}
+        />
       </div>
     </div>
   );
