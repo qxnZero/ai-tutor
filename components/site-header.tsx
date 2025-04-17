@@ -18,8 +18,8 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b">
-      <div className="container mx-auto">
-        <div className="flex h-16 items-center justify-between">
+      <div className="container mx-auto px-4">
+        <div className="flex h-12 items-center justify-between">
           {/* Logo - Left End */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
@@ -29,7 +29,7 @@ export function SiteHeader() {
           </div>
 
           {/* Main Navigation - Middle */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-2">
             <NavItem href="/dashboard" label="Dashboard" active={isActive("/dashboard")} />
             <NavItem href="/courses" label="Courses" active={isActive("/courses")} />
             <NavItem href="/course-form" label="Create Course" active={isActive("/course-form")} />
@@ -95,7 +95,7 @@ function NavItem({ href, label, active }: { href: string; label: string; active:
   return (
     <Link
       href={href}
-      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${active
+      className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${active
         ? "bg-accent text-accent-foreground"
         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}
     >
