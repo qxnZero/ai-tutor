@@ -48,7 +48,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-  /* .dark {
+  .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -81,42 +81,8 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  } */
-  .dark {
-    /* Catppuccin Mocha Theme */
-    --background: 240 21% 15%; /* Base */
-    --foreground: 226 100% 94%; /* Text - increased brightness for better visibility */
-    --card: 240 21% 15%; /* Base */
-    --card-foreground: 226 100% 94%; /* Text - increased brightness */
-    --popover: 240 21% 15%; /* Base */
-    --popover-foreground: 226 100% 94%; /* Text - increased brightness */
-    --primary: 183 74% 70%; /* Teal */
-    --primary-foreground: 240 21% 15%; /* Base */
-    --secondary: 249 12% 47%; /* Surface1 */
-    --secondary-foreground: 226 100% 94%; /* Text - increased brightness */
-    --muted: 249 12% 47%; /* Surface1 */
-    --muted-foreground: 228 39% 85%; /* Subtext0 - increased brightness for better visibility */
-    --accent: 266 85% 58%; /* Mauve */
-    --accent-foreground: 226 100% 94%; /* Text - increased brightness */
-    --destructive: 343 81% 75%; /* Red */
-    --destructive-foreground: 226 100% 94%; /* Text - increased brightness */
-    --border: 249 12% 47%; /* Surface1 */
-    --input: 249 12% 47%; /* Surface1 */
-    --ring: 183 74% 70%; /* Teal */
-    --chart-1: 183 74% 70%; /* Teal */
-    --chart-2: 189 70% 73%; /* Sky */
-    --chart-3: 221 83% 71%; /* Blue */
-    --chart-4: 266 85% 58%; /* Mauve */
-    --chart-5: 316 72% 86%; /* Pink */
-    --sidebar-background: 240 21% 12%; /* Mantle */
-    --sidebar-foreground: 226 100% 94%; /* Text - increased brightness */
-    --sidebar-primary: 183 74% 70%; /* Teal */
-    --sidebar-primary-foreground: 240 21% 15%; /* Base */
-    --sidebar-accent: 249 12% 47%; /* Surface1 */
-    --sidebar-accent-foreground: 226 100% 94%; /* Text - increased brightness */
-    --sidebar-border: 249 12% 47%; /* Surface1 */
-    --sidebar-ring: 183 74% 70%; /* Teal */
   }
+
 }
 
 @layer base {
