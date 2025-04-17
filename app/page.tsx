@@ -9,7 +9,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-32 md:py-40 text-center">
         <div className="container px-4 mx-auto max-w-4xl">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-foreground">
             Think <span className="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Smarter</span>,<br />
             Not Harder
           </h1>
@@ -30,7 +30,7 @@ export default function Home() {
       {/* Your AI Tutor Section */}
       <section className="py-24">
         <div className="container px-4 mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-semibold text-center mb-24">
+          <h2 className="text-3xl md:text-4xl font-semibold text-center mb-24 text-foreground">
             Your Personalized AI Learning Assistant
           </h2>
 
@@ -40,7 +40,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-2xl font-semibold">
+              <h3 className="text-2xl font-semibold text-foreground">
                 AI-Powered Learning Paths
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
@@ -73,7 +73,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-400/20 to-violet-400/10">
                 <Brain className="h-6 w-6 text-blue-500" />
               </div>
-              <h3 className="text-2xl font-semibold">Interactive AI Tutoring</h3>
+              <h3 className="text-2xl font-semibold text-foreground">Interactive AI Tutoring</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Engage in natural dialogue with context-aware AI that remembers your history and provides tailored explanations to your questions.
               </p>
@@ -86,7 +86,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-400/20 to-yellow-400/10">
                 <Lightbulb className="h-6 w-6 text-amber-500" />
               </div>
-              <h3 className="text-2xl font-semibold">Source-Based Learning</h3>
+              <h3 className="text-2xl font-semibold text-foreground">Source-Based Learning</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 See exactly where information comes from with direct source citations, building trust and deeper understanding of materials.
               </p>
@@ -117,7 +117,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-green-400/20 to-teal-400/10">
                 <Laptop className="h-6 w-6 text-teal-500" />
               </div>
-              <h3 className="text-2xl font-semibold">Learn Anywhere, Anytime</h3>
+              <h3 className="text-2xl font-semibold text-foreground">Learn Anywhere, Anytime</h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Access your learning materials from any device with real-time synchronization, continuing your journey wherever you go.
               </p>
@@ -129,7 +129,7 @@ export default function Home() {
       {/* Privacy Section */}
       <section className="py-16 bg-muted/30">
         <div className="container px-4 mx-auto text-center max-w-3xl">
-          <h2 className="text-xl font-medium mb-4">
+          <h2 className="text-xl font-medium mb-4 text-foreground">
             We value your privacy and do not use your personal data to train AI Tutor
           </h2>
           <p className="text-muted-foreground mb-8">
@@ -147,7 +147,7 @@ export default function Home() {
       {/* Use Cases Section */}
       <section className="py-24">
         <div className="container px-4 mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-semibold text-center mb-20">
+          <h2 className="text-3xl md:text-4xl font-semibold text-center mb-20 text-foreground">
             How people are using AI Tutor
           </h2>
 
@@ -158,7 +158,7 @@ export default function Home() {
                 <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-4 rounded-full mb-4">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-medium">Study Smarter, Not Harder</h3>
+                <h3 className="text-xl font-medium text-foreground">Study Smarter, Not Harder</h3>
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed text-center">
                 Break down difficult concepts from textbooks and research papers into digestible, easy-to-understand explanations.
@@ -171,7 +171,7 @@ export default function Home() {
                 <div className="bg-gradient-to-br from-blue-400/20 to-blue-400/5 p-4 rounded-full mb-4">
                   <Brain className="h-8 w-8 text-blue-500" />
                 </div>
-                <h3 className="text-xl font-medium">Organize Your Knowledge</h3>
+                <h3 className="text-xl font-medium text-foreground">Organize Your Knowledge</h3>
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed text-center">
                 Extract key insights from multiple sources and connect related concepts to create comprehensive knowledge maps.
