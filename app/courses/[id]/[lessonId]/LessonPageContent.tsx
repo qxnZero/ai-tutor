@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TeachingAssistant from "@/components/teaching-assistant";
 import LessonKnowledgeTest from "@/components/lesson-knowledge-test";
@@ -41,11 +41,22 @@ export default function LessonPageContent({
             Back to Outline
           </Link>
         </Button>
-        <LessonBookmark lessonId={lesson.id} />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1.5"
+            onClick={() => document.dispatchEvent(new CustomEvent('toggle-teaching-assistant'))}
+          >
+            <GraduationCap className="h-4 w-4" />
+            Teaching Assistant
+          </Button>
+          <LessonBookmark lessonId={lesson.id} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3">
+      <div className="grid grid-cols-1 gap-8">
+        <div>
           <div className="mb-2 text-sm text-muted-foreground">
             Lesson {currentLessonIndex + 1} of {currentModule.lessons.length}
           </div>
@@ -179,17 +190,16 @@ export default function LessonPageContent({
               </Button>
             )}
           </div>
-        </div>
-
-        <div className="lg:col-span-1 space-y-6">
-          <TeachingAssistant
-            courseId={course.id}
-            lessonId={lesson.id}
-            moduleName={currentModule.title}
-            lessonName={lesson.title}
-          />
           <LessonNotes lessonId={lesson.id} />
         </div>
+
+        {/* Teaching Assistant is now a floating component */}
+        <TeachingAssistant
+          courseId={course.id}
+          lessonId={lesson.id}
+          moduleName={currentModule.title}
+          lessonName={lesson.title}
+        />
       </div>
     </div>
   );
