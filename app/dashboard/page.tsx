@@ -151,7 +151,7 @@ export default async function DashboardPage() {
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <Button asChild>
-          <Link href="/course-form">Create New Course</Link>
+          <Link href="/ai-tutor">AI Tutor</Link>
         </Button>
       </div>
 
@@ -238,8 +238,8 @@ export default async function DashboardPage() {
                       You haven&apos;t created any courses yet.
                     </p>
                     <Button asChild>
-                      <Link href="/course-form">
-                        Create Your First Course
+                      <Link href="/ai-tutor">
+                        Try AI Tutor
                       </Link>
                     </Button>
                   </CardContent>

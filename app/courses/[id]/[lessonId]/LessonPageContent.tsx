@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AIInstructor from "@/components/ai-instructor";
+import TeachingAssistant from "@/components/teaching-assistant";
 import LessonKnowledgeTest from "@/components/lesson-knowledge-test";
 import LessonNotes from "@/components/lesson-notes";
 import LessonBookmark from "@/components/lesson-bookmark";
@@ -105,7 +105,7 @@ export default function LessonPageContent({
         </div>
 
         <div className="lg:col-span-1 space-y-6">
-          <AIInstructor
+          <TeachingAssistant
             courseId={course.id}
             lessonId={lesson.id}
             moduleName={currentModule.title}
