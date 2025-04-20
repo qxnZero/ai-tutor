@@ -4,9 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
+    "dev:dual": "./ai-tutor dev",
+    "dev:php": "cd php-backend && php -S localhost:8000 router.php",
     "build": "bunx prisma generate && bun --bun next build",
     "build:production": "NODE_ENV=production bunx prisma generate && bun --bun next build",
     "start": "bun --bun next start",
+    "start:dual": "./ai-tutor start",
+    "setup:all": "./ai-tutor setup",
+    "setup:azure": "sudo ./ai-tutor azure",
     "lint": "bun --bun next lint",
     "postinstall": "bunx prisma generate"
   },

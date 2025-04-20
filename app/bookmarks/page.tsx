@@ -14,7 +14,6 @@ export default async function BookmarksPage() {
     redirect("/auth/signin?callbackUrl=/bookmarks")
   }
 
-  // Get user's bookmarks
   const bookmarks = await prisma.bookmark.findMany({
     where: {
       userId: session.user.id,
@@ -35,7 +34,6 @@ export default async function BookmarksPage() {
     },
   })
 
-  // Group bookmarks by course
   const bookmarksByCourse = bookmarks.reduce(
     (acc, bookmark) => {
       const courseId = bookmark.lesson.module.courseId

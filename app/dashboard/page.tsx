@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BookOpen, Clock, Award, BookMarked } from "lucide-react";
 
-// Loading component for dashboard sections
 function DashboardLoading() {
   return (
     <div className="flex justify-center items-center h-40">
