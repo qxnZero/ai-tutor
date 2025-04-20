@@ -17,21 +17,35 @@ if ($uri === 'api/test' || $uri === 'api/test.php') {
     ]);
     exit;
 } elseif ($uri === 'api/notes' || $uri === 'api/notes.php') {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Notes API is working!',
-        'time' => date('Y-m-d H:i:s')
-    ]);
-    exit;
+    if (isset($_GET['test'])) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Notes API is working!',
+            'time' => date('Y-m-d H:i:s')
+        ]);
+        exit;
+    }
+
+    if (file_exists(__DIR__ . '/api/notes.php')) {
+        require __DIR__ . '/api/notes.php';
+        exit;
+    }
 } elseif ($uri === 'api/bookmarks' || $uri === 'api/bookmarks.php') {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Bookmarks API is working!',
-        'time' => date('Y-m-d H:i:s')
-    ]);
-    exit;
+    if (isset($_GET['test'])) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Bookmarks API is working!',
+            'time' => date('Y-m-d H:i:s')
+        ]);
+        exit;
+    }
+
+    if (file_exists(__DIR__ . '/api/bookmarks.php')) {
+        require __DIR__ . '/api/bookmarks.php';
+        exit;
+    }
 } elseif ($uri === 'api/user-progress' || $uri === 'api/user-progress.php') {
     if (isset($_GET['test'])) {
         header('Content-Type: application/json');
