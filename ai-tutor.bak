@@ -37,19 +37,19 @@ BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 WHITE='\033[1;37m'
-NC='\033[0m' # Reset
+NC='\033[0m' # No Color
 
-# Format
+# Text formatting
 BOLD='\033[1m'
 UNDERLINE='\033[4m'
 BLINK='\033[5m'
 
-# -----
+# ===== Create required directories =====
 mkdir -p "$LOGS_DIR"
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$MODULES_DIR"
 
-# -----
+# ===== Helper Functions =====
 show_header() {
   clear
   echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
@@ -89,14 +89,14 @@ show_progress() {
   echo -e "${YELLOW}$message${NC}"
 
   while [ $elapsed -lt $duration ]; do
-    # Calc percent
+    # Calculate progress percentage
     progress=$(( (elapsed * 100) / duration ))
 
-    # Bar slots
+    # Calculate number of filled and empty slots in the progress bar
     filled=$(( (progress * bar_size) / 100 ))
     empty=$(( bar_size - filled ))
 
-    # Build bar
+    # Build the progress bar
     bar="["
     for ((i=0; i<filled; i++)); do
       bar="${bar}█"
@@ -106,14 +106,14 @@ show_progress() {
     done
     bar="${bar}]"
 
-    # Print bar
+    # Print the progress bar
     printf "\r${CYAN}%s %3d%% %s${NC}" "$bar" "$progress" ""
 
     sleep 1
     ((elapsed++))
   done
 
-  # Complete bar
+  # Complete the progress bar
   printf "\r${GREEN}[%-${bar_size}s] 100%% ${NC}\n" "$(printf '%0.s█' $(seq 1 $bar_size))"
 }
 
@@ -123,10 +123,10 @@ log_message() {
   local log_file="$LOGS_DIR/ai-tutor.log"
   local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
 
-  # File log
+  # Log to file
   echo "[$timestamp] [$level] $message" >> "$log_file"
 
-  # Console log
+  # Log to console with color based on level
   case $level in
     INFO)
       echo -e "${CYAN}[$level]${NC} $message"
@@ -146,24 +146,24 @@ log_message() {
   esac
 }
 
-# -----
+# ===== Command Functions =====
 cmd_dev() {
   show_header
   log_message "INFO" "Starting AI Tutor in development mode"
 
-  # Start PHP
+  # Start PHP server in the background with custom logging
   log_message "INFO" "Starting PHP backend on port $PHP_PORT"
   cd "$SCRIPT_DIR/php-backend" && php -S localhost:$PHP_PORT router.php 2>&1 | sed 's/^/[PHP] /' &
   PHP_PID=$!
 
-  # Wait for PHP
+  # Wait a moment to ensure PHP server starts
   sleep 1
 
-  # Start Next.js
+  # Start Next.js app with custom logging
   log_message "INFO" "Starting Next.js app on port $NEXTJS_PORT"
   cd "$SCRIPT_DIR" && NEXTJS_PORT=$NEXTJS_PORT bun run dev
 
-  # Cleanup PHP
+  # When Next.js is terminated, also kill the PHP server
   kill $PHP_PID 2>/dev/null
   log_message "INFO" "Development servers stopped"
 }
@@ -172,19 +172,19 @@ cmd_start() {
   show_header
   log_message "INFO" "Starting AI Tutor in production mode"
 
-  # Start PHP
+  # Start PHP server in the background with custom logging
   log_message "INFO" "Starting PHP backend on port $PHP_PORT"
   cd "$SCRIPT_DIR/php-backend" && php -S localhost:$PHP_PORT router.php 2>&1 | sed 's/^/[PHP] /' &
   PHP_PID=$!
 
-  # Wait for PHP
+  # Wait a moment to ensure PHP server starts
   sleep 1
 
-  # Start Next.js
+  # Start Next.js app in production mode
   log_message "INFO" "Starting Next.js app on port $NEXTJS_PORT"
   cd "$SCRIPT_DIR" && NEXTJS_PORT=$NEXTJS_PORT bun run start
 
-  # Cleanup PHP
+  # When Next.js is terminated, also kill the PHP server
   kill $PHP_PID 2>/dev/null
   log_message "INFO" "Production servers stopped"
 }
@@ -193,7 +193,7 @@ cmd_setup() {
   show_header
   log_message "INFO" "Setting up AI Tutor"
 
-  # Check deps
+  # Check for required dependencies
   log_message "INFO" "Checking dependencies"
 
   MISSING_DEPS=false
@@ -221,37 +221,37 @@ cmd_setup() {
 
   log_message "SUCCESS" "All required dependencies are installed."
 
-  # Create PHP router
+  # Create enhanced PHP router with logging
   log_message "INFO" "Creating enhanced PHP router"
   cat > "$SCRIPT_DIR/php-backend/router.php" << EOF
 <?php
-// PHP router
+// Enhanced router for PHP backend with logging
 ini_set('display_errors', ${PHP_DISPLAY_ERRORS:-1});
 ini_set('display_startup_errors', ${PHP_DISPLAY_ERRORS:-1});
 error_reporting(${PHP_ERROR_REPORTING:-E_ALL});
 
-// Log request
+// Log the request with [PHP] prefix
 $requestTime = date('Y-m-d H:i:s');
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestIp = $_SERVER['REMOTE_ADDR'];
 
-// Print log
+// Print log with [PHP] prefix for easy identification
 error_log("[PHP] $requestTime - $requestMethod $requestUri - $requestIp");
 echo "\033[36m[PHP]\033[0m $requestMethod $requestUri\n";
 
-// Static files
+// Static files should be served directly
 if (preg_match('/\.(?:png|jpg|jpeg|gif|css|js)$/', $_SERVER["REQUEST_URI"])) {
     return false; // Serve the requested file as-is
 }
 
-// Default route
+// Route everything else to index.php
 require __DIR__ . '/index.php';
 EOF
 
   log_message "SUCCESS" "Enhanced PHP router created."
 
-  # Create Nginx config
+  # Create Azure-optimized Nginx configuration
   log_message "INFO" "Creating Azure-optimized Nginx configuration"
   mkdir -p "$CONFIG_DIR"
   cat > "$CONFIG_DIR/nginx.conf" << EOF
@@ -322,7 +322,7 @@ EOF
 
   log_message "SUCCESS" "Created Azure-optimized Nginx configuration."
 
-  # Create PM2 config
+  # Create PM2 ecosystem file for Azure
   log_message "INFO" "Creating PM2 ecosystem file for Azure"
   cat > "$CONFIG_DIR/ecosystem.config.js" << EOF
 module.exports = {
@@ -366,10 +366,10 @@ EOF
 
   log_message "SUCCESS" "Created PM2 ecosystem file for Azure."
 
-  # Update package.json
+  # Update package.json with better script names
   log_message "INFO" "Updating package.json with intuitive script names"
   if command -v jq >/dev/null 2>&1; then
-    # Use jq
+    # Use jq if available
     jq '.scripts."dev:dual" = "./ai-tutor dev" |
         .scripts."dev:php" = "cd php-backend && php -S localhost:'${PHP_PORT:-8000}' router.php" |
         .scripts."start:dual" = "./ai-tutor start" |
@@ -403,7 +403,7 @@ EOF
 cmd_azure() {
   show_header
 
-  # Check root
+  # Check if running as root
   if [[ $EUID -ne 0 ]]; then
      log_message "ERROR" "This command must be run as root"
      exit 1
@@ -411,15 +411,15 @@ cmd_azure() {
 
   log_message "INFO" "Setting up AI Tutor on Azure VPS"
 
-  # Update
+  # Update system
   log_message "INFO" "Updating system packages"
   apt update && apt upgrade -y
 
-  # Install packages
+  # Install required packages
   log_message "INFO" "Installing required packages"
   apt install -y nginx php-fpm php-pgsql php-curl php-json curl
 
-  # Install Node
+  # Install Node.js and npm
   log_message "INFO" "Installing Node.js and npm"
   curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
   apt install -y nodejs
@@ -433,26 +433,26 @@ cmd_azure() {
   curl -fsSL https://bun.sh/install | bash
   source /root/.bashrc
 
-  # Create logs
+  # Create logs directory
   log_message "INFO" "Creating logs directory"
   mkdir -p "$SCRIPT_DIR/logs"
 
-  # Setup Nginx
+  # Configure Nginx
   log_message "INFO" "Configuring Nginx"
   cp "$CONFIG_DIR/nginx.conf" /etc/nginx/sites-available/ai-tutor
 
-  # Remove default
+  # Remove default site if it exists
   if [ -f "/etc/nginx/sites-enabled/default" ]; then
     rm /etc/nginx/sites-enabled/default
   fi
 
-  # Enable site
+  # Enable AI Tutor site
   if [ -f "/etc/nginx/sites-enabled/ai-tutor" ]; then
     rm /etc/nginx/sites-enabled/ai-tutor
   fi
   ln -s /etc/nginx/sites-available/ai-tutor /etc/nginx/sites-enabled/
 
-  # Test Nginx
+  # Test Nginx configuration
   nginx -t
   if [ $? -eq 0 ]; then
     systemctl restart nginx
@@ -462,14 +462,14 @@ cmd_azure() {
     exit 1
   fi
 
-  # Setup firewall
+  # Configure firewall
   log_message "INFO" "Configuring firewall"
   if command -v ufw &> /dev/null; then
     ufw allow 22/tcp
     ufw allow 80/tcp
     ufw allow 443/tcp
 
-    # Safe enable
+    # Only enable if not already enabled to avoid locking yourself out
     if ! ufw status | grep -q "Status: active"; then
       log_message "WARNING" "Enabling UFW firewall"
       ufw --force enable
@@ -480,18 +480,18 @@ cmd_azure() {
     log_message "WARNING" "UFW not found. Skipping firewall configuration."
   fi
 
-  # Build app
+  # Build the Next.js application
   log_message "INFO" "Building Next.js application"
   cd "$SCRIPT_DIR"
   bun install
   bun run build
 
-  # Start with PM2
+  # Start the application with PM2
   log_message "INFO" "Starting application with PM2"
   pm2 start "$CONFIG_DIR/ecosystem.config.js"
   pm2 save
 
-  # PM2 autostart
+  # Configure PM2 to start on boot
   log_message "INFO" "Configuring PM2 to start on boot"
   pm2 startup
   systemctl enable pm2-root
@@ -522,7 +522,7 @@ cmd_env() {
     exit 1
   fi
 
-  # Find editor
+  # Check if nano or vim is available
   if command -v nano >/dev/null 2>&1; then
     log_message "INFO" "Opening .env file with nano"
     nano "$ENV_FILE"
@@ -531,7 +531,7 @@ cmd_env() {
     vim "$ENV_FILE"
   else
     log_message "WARNING" "No editor found. Please edit .env file manually at: $ENV_FILE"
-    # Show content
+    # Show current .env file content
     echo -e "${CYAN}Current .env file content:${NC}"
     cat "$ENV_FILE"
   fi
@@ -565,11 +565,11 @@ cmd_version() {
   echo -e "${CYAN}AI Tutor${NC} version ${GREEN}${VERSION}${NC}"
 }
 
-# -----
-# Ensure executable
+# ===== Main Script =====
+# Make sure the script is executable
 chmod +x "$0"
 
-# Process args
+# Process command line arguments
 case "$1" in
   dev)
     cmd_dev
@@ -594,7 +594,7 @@ case "$1" in
     ;;
   *)
     if [ -z "$1" ]; then
-      # Interactive mode
+      # Interactive mode if no arguments provided
       show_header
       echo -e "${WHITE}${BOLD}Welcome to AI Tutor Command Center${NC}"
       echo ""

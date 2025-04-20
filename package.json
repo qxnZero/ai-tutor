@@ -10,10 +10,13 @@
     "build:production": "NODE_ENV=production bunx prisma generate && bun --bun next build",
     "start": "bun --bun next start",
     "start:dual": "./ai-tutor start",
-    "setup:all": "./ai-tutor setup",
+    "setup": "./ai-tutor setup",
     "setup:azure": "sudo ./ai-tutor azure",
+    "setup:env": "./ai-tutor env",
+    "setup:help": "./ai-tutor help",
     "lint": "bun --bun next lint",
-    "postinstall": "bunx prisma generate"
+    "postinstall": "bunx prisma generate",
+    "ai-tutor": "./ai-tutor"
   },
   "dependencies": {
     "@auth/core": "^0.38.0",

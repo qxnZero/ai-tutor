@@ -64,19 +64,23 @@ cp .env.example .env
 npx prisma migrate dev
 ```
 
-5. Start the development server:
+5. Set up and start the application:
 
 ```bash
+# Set up the application (configuration files, environment, etc.)
+bun run setup
+
+# Configure environment variables
+bun run setup:env
+
 # Start only Next.js backend
 bun run dev
 
 # Start both Next.js and PHP backends
-./ai-tutor dev
-# or
 bun run dev:dual
 
 # For interactive mode with menu options
-./ai-tutor
+bun run ai-tutor
 ```
 
 The Next.js application will be available at http://localhost:3000.
@@ -93,7 +97,7 @@ Quick deployment options:
 1. **Azure VPS** (Recommended for dual backend):
    - Clone repository to VPS
    - Run setup script: `bun run setup:azure`
-   - Configure environment variables
+   - Configure environment variables: `bun run setup:env`
    - Start application: `bun run start:dual`
 
 2. **Vercel** (Next.js only):

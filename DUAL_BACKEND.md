@@ -56,11 +56,23 @@ This will launch an interactive menu where you can select options.
 
 ## Available Scripts
 
+### Development
 - `bun run dev:dual` - Run both backends in development mode
 - `bun run dev:php` - Run only the PHP backend
+- `bun run dev` - Run only the Next.js backend
+
+### Production
 - `bun run start:dual` - Run both backends in production mode
-- `bun run setup:all` - Run the local setup script
+- `bun run start` - Run only the Next.js backend
+
+### Setup
+- `bun run setup` - Run the local setup script
+- `bun run setup:env` - Edit environment configuration (.env file)
 - `bun run setup:azure` - Run the Azure VPS setup script (requires sudo)
+- `bun run setup:help` - Show help information
+
+### Interactive Mode
+- `bun run ai-tutor` - Launch interactive mode with menu options
 
 ## Command System Documentation
 

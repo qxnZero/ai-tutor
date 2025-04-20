@@ -8,53 +8,80 @@ The AI Tutor Command System provides a unified, intuitive interface for managing
 
 ```bash
 # Start both backends in development mode
-./ai-tutor dev
-
-# Or using npm/bun script
 bun run dev:dual
+
+# Direct command
+./ai-tutor dev
 ```
 
 ### Production Mode
 
 ```bash
 # Start both backends in production mode
-./ai-tutor start
-
-# Or using npm/bun script
 bun run start:dual
+
+# Direct command
+./ai-tutor start
 ```
 
 ### Setup
 
 ```bash
 # Set up configuration files
-./ai-tutor setup
+bun run setup
 
-# Or using npm/bun script
-bun run setup:all
+# Direct command
+./ai-tutor setup
+```
+
+### Environment Configuration
+
+```bash
+# Edit environment variables
+bun run setup:env
+
+# Direct command
+./ai-tutor env
 ```
 
 ### Azure VPS Deployment
 
 ```bash
 # Set up on Azure VPS (requires root)
-sudo ./ai-tutor azure
-
-# Or using npm/bun script
 bun run setup:azure
+
+# Direct command
+sudo ./ai-tutor azure
 ```
 
 ## Interactive Mode
 
-For a more user-friendly experience, simply run the command without arguments:
+For a more user-friendly experience, simply run:
 
 ```bash
+bun run ai-tutor
+
+# Or direct command
 ./ai-tutor
 ```
 
 This will launch the interactive menu where you can select options using numbered choices.
 
 ## Command Reference
+
+### NPM/Bun Scripts
+
+| Script | Description |
+|--------|-------------|
+| `bun run dev:dual` | Start both backends in development mode |
+| `bun run start:dual` | Start both backends in production mode |
+| `bun run setup` | Set up configuration files |
+| `bun run setup:env` | Edit environment configuration (.env file) |
+| `bun run setup:azure` | Set up on Azure VPS (requires root) |
+| `bun run setup:help` | Show help information |
+| `bun run ai-tutor` | Launch interactive mode |
+
+### Direct Commands
 
 | Command | Description |
 |---------|-------------|
