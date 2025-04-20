@@ -7,7 +7,6 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
   try {
     console.log("GET /api/courses - Starting request");
-    // Get the current user session
     const session = await getServerSession(authOptions);
     console.log("GET /api/courses - Session:", JSON.stringify(session));
 
@@ -19,7 +18,6 @@ export async function GET() {
       );
     }
 
-    // Get user from database to ensure we have the ID
     console.log(
       "GET /api/courses - Looking up user with email:",
       session.user.email
@@ -39,7 +37,6 @@ export async function GET() {
       return NextResponse.json({ error: "User not found." }, { status: 401 });
     }
 
-    // Get courses for the current user
     const courses = await prisma.course.findMany({
       where: {
         OR: [
@@ -69,7 +66,6 @@ export async function GET() {
       },
     });
 
-    // Get progress for each course
     const coursesWithProgress = await Promise.all(
       courses.map(async (course) => {
         const progress = await prisma.userProgress.findFirst({

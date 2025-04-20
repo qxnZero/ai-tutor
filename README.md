@@ -6,11 +6,13 @@ AI Tutor is an AI-powered learning platform that helps users create personalized
 
 - Google Authentication
 - Personalized course creation
-- AI-generated course content
+- AI-generated course content with HTML formatting
 - Interactive quizzes and knowledge tests
 - Progress tracking
 - Bookmarks and notes
 - Dark/light mode
+- Teaching Assistant powered by Gemini AI
+- Dual backend architecture (Next.js + PHP)
 
 ## Tech Stack
 
@@ -19,7 +21,8 @@ AI Tutor is an AI-powered learning platform that helps users create personalized
 - Prisma ORM
 - PostgreSQL
 - NextAuth.js
-- Google Gemini AI
+- Google Gemini AI (2.0 Flash model)
+- PHP 8.0+ (secondary backend)
 - Tailwind CSS
 - Shadcn UI
 
@@ -61,39 +64,53 @@ cp .env.example .env
 npx prisma migrate dev
 ```
 
-5. Start the development server:
+5. Set up and start the application:
 
 ```bash
-npm run dev
+# Set up the application (configuration files, environment, etc.)
+bun run setup
+
+# Configure environment variables
+bun run setup:env
+
+# Start only Next.js backend
+bun run dev
+
+# Start both Next.js and PHP backends
+bun run dev:dual
+
+# For interactive mode with menu options
+bun run ai-tutor
 ```
 
-The application will be available at http://localhost:3000.
+The Next.js application will be available at http://localhost:3000.
+The PHP backend will be available at http://localhost:8000.
+
+For detailed information about the unified command system, see [COMMAND_SYSTEM.md](COMMAND_SYSTEM.md).
 
 ## Deployment
 
-For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For detailed deployment instructions, see [DUAL_BACKEND.md](DUAL_BACKEND.md).
 
 Quick deployment options:
 
-1. **Vercel** (Recommended):
+1. **Azure VPS** (Recommended for dual backend):
+   - Clone repository to VPS
+   - Run setup script: `bun run setup:azure`
+   - Configure environment variables: `bun run setup:env`
+   - Start application: `bun run start:dual`
+
+2. **Vercel** (Next.js only):
    - Push to GitHub
    - Import to Vercel
    - Set environment variables
    - Deploy
+   - Note: PHP backend must be deployed separately
 
-2. **Railway**:
-   - Push to GitHub
-   - Import to Railway
-   - Add PostgreSQL database
-   - Set environment variables
-   - Deploy
-
-3. **Netlify**:
-   - Push to GitHub
-   - Import to Netlify
-   - Configure build settings
-   - Set environment variables
-   - Deploy
+3. **Docker**:
+   - Build Docker image: `docker build -t ai-tutor .`
+   - Run container: `docker run -p 3000:3000 ai-tutor`
+   - Note: PHP backend must be configured separately
 
 ## License
 
@@ -106,3 +123,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [NextAuth.js](https://next-auth.js.org/)
 - [Google Gemini AI](https://ai.google.dev/)
 - [Shadcn UI](https://ui.shadcn.com/)
+
+## Recent Updates
+
+### Enhanced Course Generation (June 2024)
+- Improved JSON parsing with 7 progressive approaches
+- Added HTML content handling in lesson materials
+- Enhanced error recovery for more reliable course generation
+- Fixed issues with course structure and content formatting

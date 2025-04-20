@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       details,
     });
 
-    // Generate course content using Gemini
+    // Generate course content using Gemini with improved JSON parsing
     console.log("Generating course content with Gemini...");
     const courseData = await generateCourseContent(
       topic,
@@ -35,6 +35,25 @@ export async function POST(req: NextRequest) {
     );
     console.log("Course content generated successfully:", {
       title: courseData.title,
+      moduleCount: courseData.modules.length,
+      lessonCount: courseData.modules.reduce((acc, module) => acc + module.lessons.length, 0)
+    });
+
+    // Ensure each module has at least one lesson
+    const validatedModules = courseData.modules.map(module => {
+      if (!module.lessons || module.lessons.length === 0) {
+        // Add a placeholder lesson if none exist
+        return {
+          ...module,
+          lessons: [{
+            title: `Introduction to ${module.title}`,
+            content: `<h1>Introduction to ${module.title}</h1><p>This lesson will introduce you to the key concepts of this module.</p>`,
+            summary: "An introduction to the key concepts of this module.",
+            exercises: { "Exercise 1": "Review the key concepts presented in this lesson." }
+          }]
+        };
+      }
+      return module;
     });
 
     // Create course in database
@@ -47,7 +66,7 @@ export async function POST(req: NextRequest) {
         topic,
         userId: session.user.id, // Associate course with the current user
         modules: {
-          create: courseData.modules.map((module, moduleIndex) => ({
+          create: validatedModules.map((module, moduleIndex) => ({
             title: module.title,
             description: module.description,
             order: moduleIndex,
