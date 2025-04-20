@@ -77,12 +77,12 @@ export function SiteHeader() {
                 >
                   Sign In
                 </Button>
-                {/* <Button
+                <Button
                   size="sm"
                   onClick={() => signIn(undefined, { callbackUrl: "/dashboard" })}
                 >
                   Sign Up
-                </Button> */}
+                </Button>
               </div>
             )}
           </div>

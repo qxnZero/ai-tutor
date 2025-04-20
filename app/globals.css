@@ -48,7 +48,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-  /* .dark {
+  .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -81,46 +81,8 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  } */
-  .dark {
-    /* Catppuccin Mocha palette */
-    --background: 240 21% 12%;       /* Base: #1e1e2e */
-    --foreground: 226 64% 88%;       /* Text: #cdd6f4 */
-    --card: 240 21% 12%;             /* Base: #1e1e2e */
-    --card-foreground: 226 64% 88%;  /* Text: #cdd6f4 */
-    --popover: 240 21% 12%;          /* Base: #1e1e2e */
-    --popover-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --primary: 226 64% 88%;          /* Text: #cdd6f4 */
-    --primary-foreground: 240 21% 12%; /* Base: #1e1e2e */
-    --secondary: 240 24% 15%;        /* Surface0: #313244 */
-    --secondary-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --muted: 240 24% 15%;            /* Surface0: #313244 */
-    --muted-foreground: 227 35% 80%; /* Subtext0: #a6adc8 */
-    --accent: 240 24% 15%;           /* Surface0: #313244 */
-    --accent-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --destructive: 343 81% 75%;      /* Red: #f38ba8 */
-    --destructive-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --border: 240 24% 15%;           /* Surface0: #313244 */
-    --input: 240 24% 15%;            /* Surface0: #313244 */
-    --ring: 226 64% 88%;             /* Text: #cdd6f4 */
-
-    /* Chart colors using Catppuccin Mocha accent colors */
-    --chart-1: 207 88% 78%;          /* Blue: #89b4fa */
-    --chart-2: 183 74% 77%;          /* Teal: #94e2d5 */
-    --chart-3: 266 85% 82%;          /* Lavender: #b4befe */
-    --chart-4: 41 86% 83%;           /* Yellow: #f9e2af */
-    --chart-5: 316 73% 85%;          /* Pink: #f5c2e7 */
-
-    /* Sidebar - keeping the same structure but with Mocha colors */
-    --sidebar-background: 240 25% 14%; /* Mantle: #181825 */
-    --sidebar-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --sidebar-primary: 217 92% 76%;   /* Blue: #89b4fa */
-    --sidebar-primary-foreground: 240 21% 12%; /* Base: #1e1e2e */
-    --sidebar-accent: 240 24% 18%;    /* Surface1: #45475a */
-    --sidebar-accent-foreground: 226 64% 88%; /* Text: #cdd6f4 */
-    --sidebar-border: 240 24% 15%;    /* Surface0: #313244 */
-    --sidebar-ring: 217 92% 76%;      /* Blue: #89b4fa */
   }
+
 }
 
 @layer base {
