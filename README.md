@@ -32,6 +32,7 @@ AI Tutor is an AI-powered learning platform that helps users create personalized
 
 - Node.js 18+ and npm
 - PostgreSQL database
+- PHP 8.0+ with pgsql extension
 - Google OAuth credentials
 - Gemini API key
 
@@ -88,6 +89,12 @@ The PHP backend will be available at http://localhost:8000.
 
 For detailed information about the unified command system, see [COMMAND_SYSTEM.md](COMMAND_SYSTEM.md).
 
+### API Documentation and Testing
+
+- API documentation is available in [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+- Test the API endpoints using the web interface at http://localhost:8000/test.html
+- Run automated API tests with `./test-api.sh`
+
 ## Deployment
 
 For detailed deployment instructions, see [DUAL_BACKEND.md](DUAL_BACKEND.md).
@@ -125,6 +132,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Shadcn UI](https://ui.shadcn.com/)
 
 ## Recent Updates
+
+### Backend Improvements (July 2024)
+- Added health check endpoints for both backends
+- Implemented standardized error responses
+- Enhanced logging system with detailed request tracking
+- Added database connection pooling for PHP backend
+- Created comprehensive API documentation
 
 ### Enhanced Course Generation (June 2024)
 - Improved JSON parsing with 7 progressive approaches

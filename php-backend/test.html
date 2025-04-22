@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 300px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow: auto;
+            max-height: 300px;
+        }
+        .endpoint {
+            margin-bottom: 20px;
+        }
+        .response {
+            margin-top: 10px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ddd;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 2px solid #4CAF50;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Tutor API Test Page</h1>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="health">Health Checks</div>
+        <div class="tab" data-tab="php">PHP Endpoints</div>
+        <div class="tab" data-tab="nextjs">Next.js Endpoints</div>
+        <div class="tab" data-tab="error">Error Responses</div>
+    </div>
+    
+    <div class="tab-content active" id="health">
+        <h2>Health Check Endpoints</h2>
+        <div class="container">
+            <div class="card">
+                <h3>PHP Health Check</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/health', 'phpHealthResponse')">Test PHP Health</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/health?fallback=1', 'phpHealthResponse')">Test with Fallback</button>
+                    <div class="response">
+                        <pre id="phpHealthResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Next.js Health Check</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:3000/api/health', 'nextjsHealthResponse')">Test Next.js Health</button>
+                    <div class="response">
+                        <pre id="nextjsHealthResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="php">
+        <h2>PHP Backend Endpoints</h2>
+        <div class="container">
+            <div class="card">
+                <h3>Notes API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/notes?test=1', 'notesResponse')">Test Mode</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/notes?lessonId=lesson-1&fallback=1', 'notesResponse')">Fallback Mode</button>
+                    <div class="response">
+                        <pre id="notesResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Bookmarks API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/bookmarks?test=1', 'bookmarksResponse')">Test Mode</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/bookmarks?lessonId=lesson-1&fallback=1', 'bookmarksResponse')">Fallback Mode</button>
+                    <div class="response">
+                        <pre id="bookmarksResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>User Progress API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/user-progress?test=1', 'progressResponse')">Test Mode</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/user-progress?courseId=course-1&fallback=1', 'progressResponse')">Fallback Mode</button>
+                    <div class="response">
+                        <pre id="progressResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Knowledge Test API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/knowledge-test?test=1', 'knowledgeTestResponse')">Test Mode</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/knowledge-test?lessonId=lesson-1&fallback=1', 'knowledgeTestResponse')">Fallback Mode</button>
+                    <div class="response">
+                        <pre id="knowledgeTestResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="nextjs">
+        <h2>Next.js Backend Endpoints</h2>
+        <div class="container">
+            <div class="card">
+                <h3>Knowledge Test API</h3>
+                <div class="endpoint">
+                    <button onclick="testPostEndpoint('http://localhost:3000/api/knowledge-test', {lessonId: 'lesson-1'}, 'nextjsKnowledgeTestResponse')">Test Knowledge Test</button>
+                    <div class="response">
+                        <pre id="nextjsKnowledgeTestResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="error">
+        <h2>Error Response Testing</h2>
+        <div class="container">
+            <div class="card">
+                <h3>PHP Error Responses</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/notes?lessonId=invalid-id', 'phpErrorResponse')">Not Found Error</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/notes', 'phpErrorResponse')">Bad Request Error</button>
+                    <div class="response">
+                        <pre id="phpErrorResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Next.js Error Responses</h3>
+                <div class="endpoint">
+                    <button onclick="testPostEndpoint('http://localhost:3000/api/knowledge-test', {}, 'nextjsErrorResponse')">Bad Request Error</button>
+                    <button onclick="testEndpoint('http://localhost:3000/api/invalid-endpoint', 'nextjsErrorResponse')">Not Found Error</button>
+                    <div class="response">
+                        <pre id="nextjsErrorResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Function to test an endpoint
+        async function testEndpoint(url, responseElementId) {
+            const responseElement = document.getElementById(responseElementId);
+            responseElement.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Function to test a POST endpoint
+        async function testPostEndpoint(url, body, responseElementId) {
+            const responseElement = document.getElementById(responseElementId);
+            responseElement.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3,8 +3,15 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Include logger and fallback mode
+require_once __DIR__ . '/includes/logger.php';
+require_once __DIR__ . '/includes/fallback.php';
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = ltrim($uri, '/');
+
+// Log the API request
+logApiRequest();
 
 if ($uri === 'api/test' || $uri === 'api/test.php') {
     header('Content-Type: application/json');
@@ -91,6 +98,17 @@ if ($uri === 'api/test' || $uri === 'api/test.php') {
         require __DIR__ . '/api/course-generator.php';
         exit;
     }
+} elseif ($uri === 'api/health' || $uri === 'api/health.php') {
+    // Health check endpoint - no authentication required
+    if (file_exists(__DIR__ . '/api/health.php')) {
+        require __DIR__ . '/api/health.php';
+        exit;
+    }
+} elseif ($uri === 'test.html') {
+    // Serve the test HTML page
+    header('Content-Type: text/html');
+    readfile(__DIR__ . '/test.html');
+    exit;
 } elseif ($uri === '' || $uri === 'index.php') {
     header('Content-Type: application/json');
     echo json_encode([
@@ -102,7 +120,8 @@ if ($uri === 'api/test' || $uri === 'api/test.php') {
             '/api/bookmarks',
             '/api/user-progress',
             '/api/knowledge-test',
-            '/api/course-generator'
+            '/api/course-generator',
+            '/api/health'
         ]
     ]);
     exit;

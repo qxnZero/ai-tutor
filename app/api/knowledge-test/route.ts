@@ -1,11 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/prisma";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-utils";
+import { logApiRequest, logInfo, logWarning, logError } from "@/lib/logger";
 
 // Initialize the Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: NextRequest) {
+  // Log the API request
+  const requestContext = logApiRequest(req);
+
   try {
     const body = await req.json();
     const { lessonId } = body;
@@ -25,7 +30,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!lesson) {
-      return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
+      return createErrorResponse(
+        "Lesson not found",
+        404,
+        `No lesson found with ID: ${lessonId}`,
+        "RESOURCE_NOT_FOUND"
+      );
     }
 
     // Create prompt for the AI
@@ -66,18 +76,21 @@ export async function POST(req: NextRequest) {
 
     // Log a sample of the response for debugging
     const sampleLength = 200;
-    console.log(
-      "Response sample (first 200 chars):",
-      responseText.substring(0, sampleLength) +
-        (responseText.length > sampleLength ? "..." : "")
-    );
+    const responseSample = responseText.substring(0, sampleLength) +
+      (responseText.length > sampleLength ? "..." : "");
+
+    logInfo("Received AI response", {
+      ...requestContext,
+      responseSample,
+      responseLength: responseText.length
+    });
 
     // Try multiple approaches to extract valid JSON
     try {
       // Approach 1: Try to parse the entire response as JSON directly
       try {
         const questions = JSON.parse(responseText.trim());
-        return NextResponse.json({ questions });
+        return createSuccessResponse({ questions });
       } catch (e) {
         // Not valid JSON, continue to other approaches
       }
@@ -91,9 +104,9 @@ export async function POST(req: NextRequest) {
         const extractedJson = jsonBlockMatch[1].trim();
         try {
           const questions = JSON.parse(extractedJson);
-          return NextResponse.json({ questions });
+          return createSuccessResponse({ questions });
         } catch (e) {
-          console.log("Could not parse JSON from code block");
+          logWarning("Could not parse JSON from code block", requestContext);
         }
       }
 
@@ -105,9 +118,9 @@ export async function POST(req: NextRequest) {
         const jsonSubstring = responseText.substring(startBracket, endBracket + 1);
         try {
           const questions = JSON.parse(jsonSubstring);
-          return NextResponse.json({ questions });
+          return createSuccessResponse({ questions });
         } catch (e) {
-          console.log("Could not parse JSON using bracket extraction");
+          logWarning("Could not parse JSON using bracket extraction", requestContext);
         }
       }
 
@@ -122,30 +135,45 @@ export async function POST(req: NextRequest) {
 
         try {
           const questions = JSON.parse(jsonSubstring);
-          return NextResponse.json({ questions });
+          return createSuccessResponse({ questions });
         } catch (e) {
-          console.error("Could not parse JSON even after fixing common issues:", e);
+          logError("Could not parse JSON even after fixing common issues", {
+            ...requestContext,
+            error: e instanceof Error ? e.message : String(e)
+          });
         }
       }
 
       // If we've reached here, all parsing attempts have failed
-      console.error("All JSON parsing approaches failed");
-      return NextResponse.json(
-        { error: "Failed to parse questions: Could not extract valid JSON from the response" },
-        { status: 500 }
+      logError("All JSON parsing approaches failed", requestContext);
+      return createErrorResponse(
+        "Failed to parse questions",
+        500,
+        "Could not extract valid JSON from the AI response",
+        "AI_RESPONSE_PARSING_ERROR"
       );
     } catch (innerError) {
-      console.error("Error parsing JSON:", innerError);
-      return NextResponse.json(
-        { error: "Failed to parse questions" },
-        { status: 500 }
+      logError("Error parsing JSON", {
+        ...requestContext,
+        error: innerError instanceof Error ? innerError.message : String(innerError)
+      });
+      return createErrorResponse(
+        "Failed to parse questions",
+        500,
+        innerError instanceof Error ? innerError.message : "Unknown parsing error",
+        "JSON_PARSING_ERROR"
       );
     }
   } catch (error) {
-    console.error("Error generating knowledge test:", error);
-    return NextResponse.json(
-      { error: "Failed to generate knowledge test" },
-      { status: 500 }
+    logError("Error generating knowledge test", {
+      ...requestContext,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return createErrorResponse(
+      "Failed to generate knowledge test",
+      500,
+      error instanceof Error ? error.message : "Unknown error during knowledge test generation",
+      "KNOWLEDGE_TEST_GENERATION_ERROR"
     );
   }
 }
