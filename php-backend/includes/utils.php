@@ -4,239 +4,29 @@
  */
 
 /**
- * Database connection pool
- * Manages a pool of PDO connections to the PostgreSQL database
+ * Load environment variables from .env file
  */
-class DbConnectionPool {
-    private static $instance = null;
-    private $connections = [];
-    private $maxConnections = 10;
-    private $idleTimeout = 60; // seconds
-    private $dsn;
-    private $username;
-    private $password;
-    private $options;
-    private $lastCleanup = 0;
+function loadEnvVariables() {
+    $envFile = __DIR__ . '/../../.env';
+    if (file_exists($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+                list($key, $value) = explode('=', $line, 2);
+                $key = trim($key);
+                $value = trim($value);
 
-    /**
-     * Private constructor to enforce singleton pattern
-     */
-    private function __construct() {
-        // Load environment variables from .env file
-        $this->loadEnvVariables();
-
-        // Get database connection string from environment
-        $databaseUrl = getenv('DATABASE_URL');
-
-        if (!$databaseUrl) {
-            throw new Exception('DATABASE_URL environment variable is not set');
-        }
-
-        // Parse the database URL
-        $dbParams = parse_url($databaseUrl);
-
-        $host = $dbParams['host'];
-        $port = $dbParams['port'] ?? 5432;
-        $dbname = ltrim($dbParams['path'], '/');
-        $this->username = $dbParams['user'];
-        $this->password = $dbParams['pass'];
-
-        // Set connection string
-        $this->dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-
-        // Set PDO options
-        $this->options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_TIMEOUT => 5, // 5 seconds timeout
-            PDO::ATTR_PERSISTENT => false // Non-persistent connections for better control
-        ];
-
-        // Get pool configuration from environment variables
-        $this->maxConnections = (int)getenv('DB_MAX_CONNECTIONS') ?: 10;
-        $this->idleTimeout = (int)getenv('DB_IDLE_TIMEOUT') ?: 60;
-
-        // Log pool initialization
-        if (function_exists('logInfo')) {
-            logInfo("Database connection pool initialized", [
-                'maxConnections' => $this->maxConnections,
-                'idleTimeout' => $this->idleTimeout
-            ]);
-        }
-    }
-
-    /**
-     * Load environment variables from .env file
-     */
-    private function loadEnvVariables() {
-        $envFile = __DIR__ . '/../../.env';
-        if (file_exists($envFile)) {
-            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            foreach ($lines as $line) {
-                if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-                    list($key, $value) = explode('=', $line, 2);
-                    $key = trim($key);
-                    $value = trim($value);
-
-                    // Remove quotes if present
-                    if (preg_match('/^"(.+)"$/', $value, $matches)) {
-                        $value = $matches[1];
-                    } elseif (preg_match("/^'(.+)'$/", $value, $matches)) {
-                        $value = $matches[1];
-                    }
-
-                    $_ENV[$key] = $value;
-                    putenv("$key=$value");
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the singleton instance
-     */
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    /**
-     * Get a connection from the pool
-     */
-    public function getConnection() {
-        // Clean up idle connections periodically
-        $this->cleanupIdleConnections();
-
-        // Check for available connections in the pool
-        foreach ($this->connections as $key => $connInfo) {
-            if (!$connInfo['in_use']) {
-                // Mark connection as in use
-                $this->connections[$key]['in_use'] = true;
-                $this->connections[$key]['last_used'] = time();
-
-                // Test connection and return if valid
-                try {
-                    $conn = $this->connections[$key]['connection'];
-                    $conn->query('SELECT 1'); // Test query
-                    return $conn;
-                } catch (PDOException $e) {
-                    // Connection is stale, remove it
-                    unset($this->connections[$key]);
-                    // Continue to create a new connection
-                }
-            }
-        }
-
-        // Create a new connection if pool is not full
-        if (count($this->connections) < $this->maxConnections) {
-            try {
-                // Check if pgsql driver is available
-                $availableDrivers = PDO::getAvailableDrivers();
-                if (!in_array('pgsql', $availableDrivers)) {
-                    throw new PDOException("PostgreSQL driver not available. Available drivers: " . implode(', ', $availableDrivers));
+                // Remove quotes if present
+                if (preg_match('/^"(.+)"$/', $value, $matches)) {
+                    $value = $matches[1];
+                } elseif (preg_match("/^'(.+)'$/", $value, $matches)) {
+                    $value = $matches[1];
                 }
 
-                $conn = new PDO($this->dsn, $this->username, $this->password, $this->options);
-                $key = spl_object_hash($conn);
-                $this->connections[$key] = [
-                    'connection' => $conn,
-                    'in_use' => true,
-                    'created' => time(),
-                    'last_used' => time()
-                ];
-                return $conn;
-            } catch (PDOException $e) {
-                // Log more detailed error information
-                if (function_exists('logError')) {
-                    logError("Failed to create database connection: " . $e->getMessage(), [
-                        'code' => $e->getCode(),
-                        'dsn' => $this->dsn,
-                        'availableDrivers' => PDO::getAvailableDrivers()
-                    ]);
-                } else {
-                    error_log("[PHP] Database connection error: " . $e->getMessage() .
-                              " (Available drivers: " . implode(', ', PDO::getAvailableDrivers()) . ")");
-                }
-                throw new Exception('Database connection failed: ' . $e->getMessage());
+                $_ENV[$key] = $value;
+                putenv("$key=$value");
             }
         }
-
-        // If we reach here, the pool is full with all connections in use
-        if (function_exists('logWarning')) {
-            logWarning("Database connection pool is full", [
-                'poolSize' => count($this->connections),
-                'maxConnections' => $this->maxConnections
-            ]);
-        }
-
-        // Wait for a connection to become available
-        usleep(100000); // 100ms
-        return $this->getConnection(); // Recursive call, be careful with stack overflow
-    }
-
-    /**
-     * Release a connection back to the pool
-     */
-    public function releaseConnection($conn) {
-        $key = spl_object_hash($conn);
-        if (isset($this->connections[$key])) {
-            $this->connections[$key]['in_use'] = false;
-            $this->connections[$key]['last_used'] = time();
-        }
-    }
-
-    /**
-     * Clean up idle connections
-     */
-    private function cleanupIdleConnections() {
-        $now = time();
-
-        // Only run cleanup every minute
-        if ($now - $this->lastCleanup < 60) {
-            return;
-        }
-
-        $this->lastCleanup = $now;
-        $idleTimeout = $this->idleTimeout;
-
-        foreach ($this->connections as $key => $connInfo) {
-            // Remove connections that have been idle for too long
-            if (!$connInfo['in_use'] && ($now - $connInfo['last_used'] > $idleTimeout)) {
-                unset($this->connections[$key]);
-            }
-        }
-
-        if (function_exists('logDebug')) {
-            logDebug("Cleaned up idle database connections", [
-                'poolSize' => count($this->connections),
-                'maxConnections' => $this->maxConnections
-            ]);
-        }
-    }
-
-    /**
-     * Get pool statistics
-     */
-    public function getStats() {
-        $activeCount = 0;
-        $idleCount = 0;
-
-        foreach ($this->connections as $connInfo) {
-            if ($connInfo['in_use']) {
-                $activeCount++;
-            } else {
-                $idleCount++;
-            }
-        }
-
-        return [
-            'total' => count($this->connections),
-            'active' => $activeCount,
-            'idle' => $idleCount,
-            'max' => $this->maxConnections
-        ];
     }
 }
 
@@ -246,21 +36,50 @@ class DbConnectionPool {
  * Falls back to a mock connection if the real connection fails
  */
 function getDbConnection() {
-    // Check if we should use fallback mode
-    if (function_exists('isFallbackMode') && isFallbackMode()) {
-        return getMockDbConnection();
+    // Load environment variables if not already loaded
+    loadEnvVariables();
+
+    // Get database connection string from environment
+    $databaseUrl = getenv('DATABASE_URL');
+
+    if (!$databaseUrl) {
+        throw new Exception('DATABASE_URL environment variable is not set');
     }
 
-    // Try to use the connection pool
     try {
-        static $pool = null;
-
-        if ($pool === null) {
-            $pool = DbConnectionPool::getInstance();
+        // Check if pgsql driver is available
+        $availableDrivers = PDO::getAvailableDrivers();
+        if (!in_array('pgsql', $availableDrivers)) {
+            throw new PDOException("PostgreSQL driver not available. Available drivers: " . implode(', ', $availableDrivers));
         }
 
-        return $pool->getConnection();
-    } catch (Exception $e) {
+        // Parse the database URL
+        $dbParams = parse_url($databaseUrl);
+
+        $host = $dbParams['host'];
+        $port = $dbParams['port'] ?? 5432;
+        $dbname = ltrim($dbParams['path'], '/');
+        $username = $dbParams['user'];
+        $password = $dbParams['pass'];
+
+        // Set connection string
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
+
+        // Set PDO options
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => 5 // 5 seconds timeout
+        ];
+
+        // Create and return the connection
+        return new PDO($dsn, $username, $password, $options);
+
+    } catch (PDOException $e) {
+        // Log error information
+        error_log("[PHP] Database connection error: " . $e->getMessage() .
+                  " (Available drivers: " . implode(', ', $availableDrivers) . ")");
+
         // If fallback.php is available, try to use it
         $fallbackFile = __DIR__ . '/fallback.php';
         if (file_exists($fallbackFile)) {
@@ -271,7 +90,7 @@ function getDbConnection() {
         }
 
         // If we get here, we can't recover
-        throw $e;
+        throw new Exception('Database connection failed: ' . $e->getMessage());
     }
 }
 
