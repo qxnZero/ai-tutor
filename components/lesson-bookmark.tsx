@@ -26,7 +26,10 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
   const checkBookmarkStatus = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/bookmarks?lessonId=${lessonId}`)
+      // Use PHP backend API instead of Next.js API
+      const response = await fetch(`http://localhost:8000/api/bookmarks?lessonId=${lessonId}`, {
+        credentials: 'include',
+      })
       const data = await response.json()
 
       if (data.bookmark) {
@@ -38,6 +41,21 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
       }
     } catch (error) {
       console.error("Error checking bookmark status:", error)
+      // Fallback to Next.js API if PHP API fails
+      try {
+        const response = await fetch(`/api/bookmarks?lessonId=${lessonId}`)
+        const data = await response.json()
+
+        if (data.bookmark) {
+          setIsBookmarked(true)
+          setBookmarkId(data.bookmark.id)
+        } else {
+          setIsBookmarked(false)
+          setBookmarkId(null)
+        }
+      } catch (fallbackError) {
+        console.error("Error checking bookmark status (fallback):", fallbackError)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -51,10 +69,11 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
 
     setIsToggling(true)
     try {
-      if (isBookmarked && bookmarkId) {
-        // Remove bookmark
-        const response = await fetch(`/api/bookmarks?id=${bookmarkId}`, {
+      if (isBookmarked) {
+        // Remove bookmark using PHP backend API with lessonId
+        const response = await fetch(`http://localhost:8000/api/bookmarks?lessonId=${lessonId}`, {
           method: "DELETE",
+          credentials: 'include', // Important: include cookies for authentication
         })
 
         if (!response.ok) {
@@ -65,12 +84,13 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
         setBookmarkId(null)
         toast.success("Bookmark removed")
       } else {
-        // Add bookmark
-        const response = await fetch("/api/bookmarks", {
+        // Add bookmark using PHP backend API
+        const response = await fetch("http://localhost:8000/api/bookmarks", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: 'include', // Important: include cookies for authentication
           body: JSON.stringify({
             lessonId,
           }),
@@ -86,8 +106,49 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
         toast.success("Lesson bookmarked")
       }
     } catch (error) {
-      console.error("Error toggling bookmark:", error)
-      toast.error("Failed to update bookmark")
+      console.error("Error toggling bookmark with PHP API:", error)
+
+      // Fallback to Next.js API if PHP API fails
+      try {
+        if (isBookmarked) {
+          // Remove bookmark using Next.js API with bookmarkId if available, otherwise use lessonId
+          const queryParam = bookmarkId ? `id=${bookmarkId}` : `lessonId=${lessonId}`;
+          const response = await fetch(`/api/bookmarks?${queryParam}`, {
+            method: "DELETE",
+          })
+
+          if (!response.ok) {
+            throw new Error("Failed to remove bookmark")
+          }
+
+          setIsBookmarked(false)
+          setBookmarkId(null)
+          toast.success("Bookmark removed")
+        } else {
+          // Add bookmark using Next.js API
+          const response = await fetch("/api/bookmarks", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              lessonId,
+            }),
+          })
+
+          if (!response.ok) {
+            throw new Error("Failed to bookmark lesson")
+          }
+
+          const data = await response.json()
+          setIsBookmarked(true)
+          setBookmarkId(data.bookmark.id)
+          toast.success("Lesson bookmarked")
+        }
+      } catch (fallbackError) {
+        console.error("Error toggling bookmark with fallback:", fallbackError)
+        toast.error("Failed to update bookmark")
+      }
     } finally {
       setIsToggling(false)
     }

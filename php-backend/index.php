@@ -1,17 +1,44 @@
 <?php
+/**
+ * Main entry point for the PHP-FPM backend
+ */
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// Set CORS headers to allow cross-origin requests from the Next.js frontend
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Handle preflight OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 // Include logger and fallback mode
 require_once __DIR__ . '/includes/logger.php';
 require_once __DIR__ . '/includes/fallback.php';
 
+// Parse the URI from the request
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = ltrim($uri, '/');
 
-// Log the API request
-logApiRequest();
+// For PHP-FPM, we need to handle the URI differently
+// The URI might be something like /api/notes or api/notes
+if (strpos($uri, 'api/') === 0) {
+    // URI already starts with api/
+} elseif (strpos($uri, '/api/') === 0) {
+    $uri = substr($uri, 1); // Remove leading slash
+} elseif (preg_match('#^/index\.php/api/#', $uri)) {
+    $uri = substr($uri, 10); // Remove /index.php/
+}
+
+// Log the API request with additional context for PHP-FPM
+logApiRequest(['mode' => 'php-fpm', 'parsed_uri' => $uri]);
 
 if ($uri === 'api/test' || $uri === 'api/test.php') {
     header('Content-Type: application/json');

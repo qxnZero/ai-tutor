@@ -11,10 +11,12 @@ The AI Tutor uses a dual backend architecture:
 
 ## Prerequisites
 
-- Bun runtime (for Next.js)
+- Bun runtime (for Next.js and package management)
 - PHP 8.0+ with pgsql extension (`sudo apt install php-pgsql`)
 - PostgreSQL database (Neon DB)
 - tmux (optional, for better terminal management)
+
+> Note: This project uses Bun exclusively for package management and running Next.js. Do not use npm or pnpm.
 
 ## Database Setup
 
@@ -58,13 +60,37 @@ bun --bun next dev
 
 ### Running PHP Backend
 
+#### Development Server (for local development)
+
 ```bash
-# Start PHP server
+# Start PHP development server
 cd php-backend
 php -S localhost:8000 router.php
 ```
 
+#### PHP-FPM (for production)
+
+```bash
+# Start PHP-FPM server
+php-fpm -F -y ./config/php-fpm.conf
+
+# OR use the script in package.json
+bun run php:fpm
+```
+
+#### Running Both Next.js and PHP Together
+
+```bash
+# Development mode
+bun run dev:all
+
+# Production mode
+bun run start:all
+```
+
 ### Using tmux (Recommended for VPS)
+
+#### With PHP Development Server
 
 ```bash
 # Create a new tmux session for PHP backend
@@ -74,14 +100,38 @@ tmux new-session -d -s ai-tutor-php 'cd php-backend && php -S localhost:8000 rou
 tmux new-session -d -s ai-tutor-next 'bun --bun next start'
 ```
 
+#### With PHP-FPM (Recommended for Production)
+
+```bash
+# Create a new tmux session for PHP-FPM backend
+tmux new-session -d -s ai-tutor-php-fpm 'php-fpm -F -y ./config/php-fpm.conf'
+
+# Create a new tmux session for Next.js backend
+tmux new-session -d -s ai-tutor-next 'bun --bun next start'
+```
+
+#### Managing tmux Sessions
+
 To attach to a session:
 ```bash
 tmux attach -t ai-tutor-php
 # OR
 tmux attach -t ai-tutor-next
+# OR
+tmux attach -t ai-tutor-php-fpm
 ```
 
 To detach from a session: Press `Ctrl+B` then `D`
+
+To list all sessions:
+```bash
+tmux ls
+```
+
+To kill a session:
+```bash
+tmux kill-session -t ai-tutor-php
+```
 
 ## Database Operations
 

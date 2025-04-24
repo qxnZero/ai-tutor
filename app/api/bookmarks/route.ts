@@ -169,41 +169,68 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const bookmarkId = searchParams.get("id");
+    const lessonId = searchParams.get("lessonId");
 
-    if (!bookmarkId) {
+    if (!bookmarkId && !lessonId) {
       return NextResponse.json(
-        { message: "Bookmark ID is required" },
+        { message: "Bookmark ID or Lesson ID is required" },
         { status: 400 }
       );
     }
 
-    // Check if bookmark exists and belongs to user
-    const bookmark = await prisma.bookmark.findUnique({
-      where: {
-        id: bookmarkId,
-      },
-    });
+    if (bookmarkId) {
+      // Delete by bookmark ID
+      // Check if bookmark exists and belongs to user
+      const bookmark = await prisma.bookmark.findUnique({
+        where: {
+          id: bookmarkId,
+        },
+      });
 
-    if (!bookmark) {
-      return NextResponse.json(
-        { message: "Bookmark not found" },
-        { status: 404 }
-      );
+      if (!bookmark) {
+        return NextResponse.json(
+          { message: "Bookmark not found" },
+          { status: 404 }
+        );
+      }
+
+      if (bookmark.userId !== user.id) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+
+      // Delete bookmark
+      await prisma.bookmark.delete({
+        where: {
+          id: bookmarkId,
+        },
+      });
+    } else {
+      // Delete by lesson ID
+      // Check if bookmark exists and belongs to user
+      const bookmark = await prisma.bookmark.findFirst({
+        where: {
+          lessonId: lessonId as string,
+          userId: user.id,
+        },
+      });
+
+      if (!bookmark) {
+        return NextResponse.json(
+          { message: "Bookmark not found" },
+          { status: 404 }
+        );
+      }
+
+      // Delete bookmark
+      await prisma.bookmark.delete({
+        where: {
+          id: bookmark.id,
+        },
+      });
     }
-
-    if (bookmark.userId !== user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    // Delete bookmark
-    await prisma.bookmark.delete({
-      where: {
-        id: bookmarkId,
-      },
-    });
 
     return NextResponse.json(
-      { message: "Bookmark removed successfully" },
+      { message: "Bookmark removed successfully", isBookmarked: false },
       { status: 200 }
     );
   } catch (error) {

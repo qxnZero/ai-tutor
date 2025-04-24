@@ -251,7 +251,12 @@ function getFallbackDbConnection() {
     try {
         // Check if PostgreSQL driver is available
         $availableDrivers = PDO::getAvailableDrivers();
-        if (!in_array('pgsql', $availableDrivers)) {
+        $pgsqlAvailable = in_array('pgsql', $availableDrivers);
+        $pdoPgsqlAvailable = extension_loaded('pdo_pgsql');
+
+        if (!$pgsqlAvailable && !$pdoPgsqlAvailable) {
+            error_log("[PHP] Fallback: PostgreSQL driver not available. Available drivers: " . implode(', ', $availableDrivers));
+            error_log("[PHP] Fallback: Loaded extensions: " . implode(', ', get_loaded_extensions()));
             throw new Exception("PostgreSQL driver not available");
         }
 
@@ -269,9 +274,10 @@ function getFallbackDbConnection() {
         $user = $dbParams['user'];
         $password = $dbParams['pass'];
 
-        // Create PDO connection
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;user=$user;password=$password";
-        $pdo = new PDO($dsn);
+        // Create PDO connection - try to use sslmode=prefer instead of require for local development
+        $sslmode = (strpos($host, 'localhost') !== false || $host === '127.0.0.1') ? 'prefer' : 'require';
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=$sslmode";
+        $pdo = new PDO($dsn, $user, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
