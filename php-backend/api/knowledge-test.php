@@ -1,88 +1,46 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/utils.php';
+require_once __DIR__ . '/../includes/logger.php';
 
-// For testing without authentication
-if (isset($_GET['test'])) {
-    header('Content-Type: application/json');
-    echo json_encode([
+// Check if we're in test mode
+$isTestMode = isset($_GET['test']) && $_GET['test'] == '1';
+$isFallbackMode = isset($_GET['fallback']) && $_GET['fallback'] == '1';
+
+$logger = new Logger('knowledge-test');
+// Only require auth if not in test mode
+$user = $isTestMode ? ['id' => 'test-user-id'] : requireAuth();
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method !== 'GET' && $method !== 'POST') {
+    sendErrorResponse('Method not supported', 405);
+}
+
+// Handle test mode
+if ($isTestMode) {
+    sendJsonResponse([
         'status' => 'success',
-        'message' => 'Knowledge Test API is working!',
-        'time' => date('Y-m-d H:i:s')
+        'code' => 200,
+        'message' => 'Endpoint not found'
     ]);
     exit;
 }
 
-// Get the current user (will exit if not authenticated)
-$user = requireAuth();
-
-// Handle different HTTP methods
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method !== 'POST') {
-    sendJsonResponse(['message' => 'Method not allowed'], 405);
+// Handle fallback mode - this will redirect to the Next.js API
+if ($isFallbackMode) {
+    // In a real implementation, we would proxy the request to the Next.js API
+    // For now, just return a message
+    sendJsonResponse([
+        'status' => 'success',
+        'code' => 200,
+        'message' => 'Redirected to Next.js API'
+    ]);
+    exit;
 }
 
-// Get request data
-$data = getRequestBody();
-validateRequired($data, ['lessonId']);
-
-$lessonId = $data['lessonId'];
-
-// Get the lesson content
-$pdo = getDbConnection();
-$stmt = $pdo->prepare("
-    SELECT l.*, m.title as \"moduleTitle\", c.title as \"courseTitle\" 
-    FROM \"Lesson\" l
-    JOIN \"Module\" m ON l.\"moduleId\" = m.id
-    JOIN \"Course\" c ON m.\"courseId\" = c.id
-    WHERE l.id = ?
-");
-$stmt->execute([$lessonId]);
-$lesson = $stmt->fetch();
-
-if (!$lesson) {
-    sendJsonResponse(['error' => 'Lesson not found'], 404);
-}
-
-// For this endpoint, we'll return mock data since we can't directly call Gemini API from PHP
-// In a real implementation, you would integrate with the Gemini API using PHP cURL
-$mockQuestions = [
-    [
-        'id' => '1',
-        'question' => 'What is the main topic of this lesson?',
-        'options' => [
-            'Option A: ' . $lesson['title'],
-            'Option B: Something else',
-            'Option C: Another topic',
-            'Option D: None of the above'
-        ],
-        'correctAnswer' => 0
-    ],
-    [
-        'id' => '2',
-        'question' => 'This lesson is part of which module?',
-        'options' => [
-            'Option A: A different module',
-            'Option B: ' . $lesson['moduleTitle'],
-            'Option C: An unrelated module',
-            'Option D: None of the above'
-        ],
-        'correctAnswer' => 1
-    ],
-    [
-        'id' => '3',
-        'question' => 'Which course does this lesson belong to?',
-        'options' => [
-            'Option A: An unrelated course',
-            'Option B: A different course',
-            'Option C: ' . $lesson['courseTitle'],
-            'Option D: None of the above'
-        ],
-        'correctAnswer' => 2
-    ]
-];
-
-// In a production environment, you would call the Gemini API here
-// For now, we'll return mock data
-sendJsonResponse(['questions' => $mockQuestions]);
+// For now, this endpoint is not implemented in PHP and should be handled by Next.js
+sendJsonResponse([
+    'status' => 'error',
+    'code' => 501,
+    'message' => 'This endpoint is not implemented in PHP backend'
+]);

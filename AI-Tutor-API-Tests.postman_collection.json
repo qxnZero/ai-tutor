@@ -197,6 +197,151 @@
 					"response": []
 				},
 				{
+					"name": "Course Statistics API (Overall)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/course-statistics?test=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"course-statistics"
+							],
+							"query": [
+								{
+									"key": "test",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get overall course statistics"
+					},
+					"response": []
+				},
+				{
+					"name": "Course Statistics API (Course)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/course-statistics?courseId=course-1&test=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"course-statistics"
+							],
+							"query": [
+								{
+									"key": "courseId",
+									"value": "course-1"
+								},
+								{
+									"key": "test",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get statistics for a specific course"
+					},
+					"response": []
+				},
+				{
+					"name": "User Activity API (GET)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/user-activity?test=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"user-activity"
+							],
+							"query": [
+								{
+									"key": "test",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get user activity history"
+					},
+					"response": []
+				},
+				{
+					"name": "User Activity API (POST)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"activityType\": \"view_course\",\n    \"resourceId\": \"course-1\",\n    \"resourceType\": \"course\",\n    \"test\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/user-activity",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"user-activity"
+							]
+						},
+						"description": "Record a new user activity"
+					},
+					"response": []
+				},
+				{
+					"name": "User Progress API (POST)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courseId\": \"course-1\",\n    \"progress\": 75,\n    \"lastLesson\": \"lesson-3\",\n    \"test\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/user-progress",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"user-progress"
+							]
+						},
+						"description": "Update user progress for a course"
+					},
+					"response": []
+				},
+				{
 					"name": "Error Response - Not Found",
 					"request": {
 						"method": "GET",

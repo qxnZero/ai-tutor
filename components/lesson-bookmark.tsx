@@ -6,6 +6,9 @@ import { Loader2, BookmarkPlus, BookmarkCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
+// PHP backend URL
+const PHP_API_URL = "http://localhost:8000/api"
+
 type LessonBookmarkProps = {
   lessonId: string
 }
@@ -26,7 +29,9 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
   const checkBookmarkStatus = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/bookmarks?lessonId=${lessonId}`)
+      const response = await fetch(`${PHP_API_URL}/bookmarks?lessonId=${lessonId}`, {
+        credentials: 'include',
+      })
       const data = await response.json()
 
       if (data.bookmark) {
@@ -37,7 +42,21 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
         setBookmarkId(null)
       }
     } catch (error) {
-      console.error("Error checking bookmark status:", error)
+      console.error("Bookmark API error:", error)
+      try {
+        const response = await fetch(`/api/bookmarks?lessonId=${lessonId}`)
+        const data = await response.json()
+
+        if (data.bookmark) {
+          setIsBookmarked(true)
+          setBookmarkId(data.bookmark.id)
+        } else {
+          setIsBookmarked(false)
+          setBookmarkId(null)
+        }
+      } catch (fallbackError) {
+        console.error("Bookmark fallback error:", fallbackError)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -51,10 +70,10 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
 
     setIsToggling(true)
     try {
-      if (isBookmarked && bookmarkId) {
-        // Remove bookmark
-        const response = await fetch(`/api/bookmarks?id=${bookmarkId}`, {
+      if (isBookmarked) {
+        const response = await fetch(`${PHP_API_URL}/bookmarks?lessonId=${lessonId}`, {
           method: "DELETE",
+          credentials: 'include',
         })
 
         if (!response.ok) {
@@ -65,12 +84,12 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
         setBookmarkId(null)
         toast.success("Bookmark removed")
       } else {
-        // Add bookmark
-        const response = await fetch("/api/bookmarks", {
+        const response = await fetch(`${PHP_API_URL}/bookmarks`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: 'include',
           body: JSON.stringify({
             lessonId,
           }),
@@ -86,8 +105,46 @@ export default function LessonBookmark({ lessonId }: LessonBookmarkProps) {
         toast.success("Lesson bookmarked")
       }
     } catch (error) {
-      console.error("Error toggling bookmark:", error)
-      toast.error("Failed to update bookmark")
+      console.error("Bookmark toggle error:", error)
+
+      try {
+        if (isBookmarked) {
+          const queryParam = bookmarkId ? `id=${bookmarkId}` : `lessonId=${lessonId}`;
+          const response = await fetch(`/api/bookmarks?${queryParam}`, {
+            method: "DELETE",
+          })
+
+          if (!response.ok) {
+            throw new Error("Failed to remove bookmark")
+          }
+
+          setIsBookmarked(false)
+          setBookmarkId(null)
+          toast.success("Bookmark removed")
+        } else {
+          const response = await fetch("/api/bookmarks", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              lessonId,
+            }),
+          })
+
+          if (!response.ok) {
+            throw new Error("Failed to bookmark lesson")
+          }
+
+          const data = await response.json()
+          setIsBookmarked(true)
+          setBookmarkId(data.bookmark.id)
+          toast.success("Lesson bookmarked")
+        }
+      } catch (fallbackError) {
+        console.error("Bookmark fallback error:", fallbackError)
+        toast.error("Failed to update bookmark")
+      }
     } finally {
       setIsToggling(false)
     }

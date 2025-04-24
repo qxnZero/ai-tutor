@@ -79,14 +79,14 @@
 </head>
 <body>
     <h1>AI Tutor API Test Page</h1>
-    
+
     <div class="tabs">
         <div class="tab active" data-tab="health">Health Checks</div>
         <div class="tab" data-tab="php">PHP Endpoints</div>
         <div class="tab" data-tab="nextjs">Next.js Endpoints</div>
         <div class="tab" data-tab="error">Error Responses</div>
     </div>
-    
+
     <div class="tab-content active" id="health">
         <h2>Health Check Endpoints</h2>
         <div class="container">
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <h3>Next.js Health Check</h3>
                 <div class="endpoint">
@@ -112,7 +112,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="tab-content" id="php">
         <h2>PHP Backend Endpoints</h2>
         <div class="container">
@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <h3>Bookmarks API</h3>
                 <div class="endpoint">
@@ -137,7 +137,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <h3>User Progress API</h3>
                 <div class="endpoint">
@@ -148,7 +148,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <h3>Knowledge Test API</h3>
                 <div class="endpoint">
@@ -159,9 +159,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <h3>Course Statistics API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/course-statistics?test=1', 'courseStatsResponse')">Test Mode (Overall)</button>
+                    <button onclick="testEndpoint('http://localhost:8000/api/course-statistics?courseId=course-1&test=1', 'courseStatsResponse')">Test Mode (Course)</button>
+                    <div class="response">
+                        <pre id="courseStatsResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>User Activity API</h3>
+                <div class="endpoint">
+                    <button onclick="testEndpoint('http://localhost:8000/api/user-activity?test=1', 'userActivityResponse')">Get Activities</button>
+                    <button onclick="testPostEndpoint('http://localhost:8000/api/user-activity', {activityType: 'view_course', resourceId: 'course-1', resourceType: 'course', test: 1}, 'userActivityResponse')">Record Activity</button>
+                    <div class="response">
+                        <pre id="userActivityResponse">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
+
     <div class="tab-content" id="nextjs">
         <h2>Next.js Backend Endpoints</h2>
         <div class="container">
@@ -176,7 +198,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="tab-content" id="error">
         <h2>Error Response Testing</h2>
         <div class="container">
@@ -190,7 +212,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <h3>Next.js Error Responses</h3>
                 <div class="endpoint">
@@ -203,13 +225,13 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Function to test an endpoint
         async function testEndpoint(url, responseElementId) {
             const responseElement = document.getElementById(responseElementId);
             responseElement.textContent = 'Loading...';
-            
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -218,12 +240,12 @@
                 responseElement.textContent = `Error: ${error.message}`;
             }
         }
-        
+
         // Function to test a POST endpoint
         async function testPostEndpoint(url, body, responseElementId) {
             const responseElement = document.getElementById(responseElementId);
             responseElement.textContent = 'Loading...';
-            
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -238,14 +260,14 @@
                 responseElement.textContent = `Error: ${error.message}`;
             }
         }
-        
+
         // Tab functionality
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 // Remove active class from all tabs
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
+
                 // Add active class to clicked tab
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.tab).classList.add('active');

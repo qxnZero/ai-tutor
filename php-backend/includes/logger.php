@@ -1,187 +1,103 @@
 <?php
 /**
- * Enhanced logging functionality for the PHP backend
+ * Simple logger class for PHP backend
  */
-
-// Define log levels
-define('LOG_LEVEL_DEBUG', 100);
-define('LOG_LEVEL_INFO', 200);
-define('LOG_LEVEL_WARNING', 300);
-define('LOG_LEVEL_ERROR', 400);
-define('LOG_LEVEL_CRITICAL', 500);
-
-// Get the configured log level from environment or use default
-$configuredLogLevel = getenv('PHP_LOG_LEVEL') ?: 'INFO';
-$currentLogLevel = getLogLevelValue($configuredLogLevel);
-
-// Log file path
-$logDir = __DIR__ . '/../../logs';
-if (!is_dir($logDir)) {
-    mkdir($logDir, 0755, true);
-}
-$logFile = $logDir . '/php-backend.log';
-
-/**
- * Convert log level string to numeric value
- * 
- * @param string $level Log level name
- * @return int Log level value
- */
-function getLogLevelValue($level) {
-    switch (strtoupper($level)) {
-        case 'DEBUG':
-            return LOG_LEVEL_DEBUG;
-        case 'INFO':
-            return LOG_LEVEL_INFO;
-        case 'WARNING':
-            return LOG_LEVEL_WARNING;
-        case 'ERROR':
-            return LOG_LEVEL_ERROR;
-        case 'CRITICAL':
-            return LOG_LEVEL_CRITICAL;
-        default:
-            return LOG_LEVEL_INFO; // Default to INFO
-    }
-}
-
-/**
- * Log a message with the specified level
- * 
- * @param string $message Log message
- * @param string $level Log level
- * @param array $context Additional context data
- */
-function logMessage($message, $level = 'INFO', $context = []) {
-    global $currentLogLevel, $logFile;
+class Logger {
+    private $context;
+    private $logFile;
+    private $logLevel;
     
-    $levelValue = getLogLevelValue($level);
-    
-    // Only log if the level is greater than or equal to the configured level
-    if ($levelValue < $currentLogLevel) {
-        return;
+    /**
+     * Constructor
+     * 
+     * @param string $context The context/component name
+     */
+    public function __construct($context) {
+        $this->context = $context;
+        $this->logFile = __DIR__ . '/../../logs/php-backend.log';
+        $this->logLevel = getenv('LOG_LEVEL') ?: 'INFO';
+        
+        // Create logs directory if it doesn't exist
+        $logsDir = dirname($this->logFile);
+        if (!is_dir($logsDir)) {
+            mkdir($logsDir, 0755, true);
+        }
+        
+        // Initialize logger
+        $this->info('PHP Backend Logger initialized', [
+            'logLevel' => $this->logLevel,
+            'logFile' => $this->logFile
+        ]);
     }
     
-    // Format timestamp
-    $timestamp = date('Y-m-d H:i:s');
-    
-    // Get request information
-    $requestId = $_SERVER['HTTP_X_REQUEST_ID'] ?? uniqid();
-    $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
-    $requestUri = $_SERVER['REQUEST_URI'] ?? 'UNKNOWN';
-    $requestIp = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
-    $userId = isset($context['userId']) ? $context['userId'] : 'anonymous';
-    
-    // Format context as JSON if not empty
-    $contextJson = !empty($context) ? ' ' . json_encode($context) : '';
-    
-    // Format log entry
-    $logEntry = sprintf(
-        "[%s] [%s] [%s] [%s %s] [%s] [%s] %s%s\n",
-        $timestamp,
-        $level,
-        $requestId,
-        $requestMethod,
-        $requestUri,
-        $requestIp,
-        $userId,
-        $message,
-        $contextJson
-    );
-    
-    // Write to log file
-    file_put_contents($logFile, $logEntry, FILE_APPEND);
-    
-    // Also write to error_log for server logs
-    error_log("[PHP] $level: $message");
-}
-
-/**
- * Log a debug message
- * 
- * @param string $message Log message
- * @param array $context Additional context data
- */
-function logDebug($message, $context = []) {
-    logMessage($message, 'DEBUG', $context);
-}
-
-/**
- * Log an info message
- * 
- * @param string $message Log message
- * @param array $context Additional context data
- */
-function logInfo($message, $context = []) {
-    logMessage($message, 'INFO', $context);
-}
-
-/**
- * Log a warning message
- * 
- * @param string $message Log message
- * @param array $context Additional context data
- */
-function logWarning($message, $context = []) {
-    logMessage($message, 'WARNING', $context);
-}
-
-/**
- * Log an error message
- * 
- * @param string $message Log message
- * @param array $context Additional context data
- */
-function logError($message, $context = []) {
-    logMessage($message, 'ERROR', $context);
-}
-
-/**
- * Log a critical message
- * 
- * @param string $message Log message
- * @param array $context Additional context data
- */
-function logCritical($message, $context = []) {
-    logMessage($message, 'CRITICAL', $context);
-}
-
-/**
- * Log API request details
- */
-function logApiRequest() {
-    $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
-    $requestUri = $_SERVER['REQUEST_URI'] ?? 'UNKNOWN';
-    $requestIp = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
-    
-    logInfo("API Request received", [
-        'method' => $requestMethod,
-        'uri' => $requestUri,
-        'ip' => $requestIp,
-        'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN'
-    ]);
-}
-
-/**
- * Log API response details
- * 
- * @param int $statusCode HTTP status code
- * @param mixed $responseData Response data
- */
-function logApiResponse($statusCode, $responseData = null) {
-    $context = [
-        'statusCode' => $statusCode
-    ];
-    
-    // Only include response data for errors to avoid logging sensitive information
-    if ($statusCode >= 400 && $responseData) {
-        $context['response'] = $responseData;
+    /**
+     * Log a debug message
+     * 
+     * @param string $message The message to log
+     * @param array $context Additional context data
+     */
+    public function debug($message, array $context = []) {
+        if (in_array($this->logLevel, ['DEBUG'])) {
+            $this->log('DEBUG', $message, $context);
+        }
     }
     
-    logInfo("API Response sent", $context);
+    /**
+     * Log an info message
+     * 
+     * @param string $message The message to log
+     * @param array $context Additional context data
+     */
+    public function info($message, array $context = []) {
+        if (in_array($this->logLevel, ['DEBUG', 'INFO'])) {
+            $this->log('INFO', $message, $context);
+        }
+    }
+    
+    /**
+     * Log a warning message
+     * 
+     * @param string $message The message to log
+     * @param array $context Additional context data
+     */
+    public function warning($message, array $context = []) {
+        if (in_array($this->logLevel, ['DEBUG', 'INFO', 'WARNING'])) {
+            $this->log('WARNING', $message, $context);
+        }
+    }
+    
+    /**
+     * Log an error message
+     * 
+     * @param string $message The message to log
+     * @param array $context Additional context data
+     */
+    public function error($message, array $context = []) {
+        $this->log('ERROR', $message, $context);
+    }
+    
+    /**
+     * Internal log method
+     * 
+     * @param string $level The log level
+     * @param string $message The message to log
+     * @param array $context Additional context data
+     */
+    private function log($level, $message, array $context = []) {
+        $timestamp = date('Y-m-d H:i:s');
+        $requestId = substr(md5(uniqid()), 0, 12);
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $user = isset($_SESSION['user']) ? $_SESSION['user']['email'] : 'anonymous';
+        
+        $contextJson = !empty($context) ? ' ' . json_encode($context) : '';
+        $logMessage = "[$timestamp] [$level] [$requestId] [$method $uri] [$ip] [$user] $message$contextJson" . PHP_EOL;
+        
+        // Log to file
+        file_put_contents($this->logFile, $logMessage, FILE_APPEND);
+        
+        // Also log to error_log for development
+        error_log("[$level] $message");
+    }
 }
-
-// Initialize logging
-logInfo("PHP Backend Logger initialized", [
-    'logLevel' => $configuredLogLevel,
-    'logFile' => $logFile
-]);
