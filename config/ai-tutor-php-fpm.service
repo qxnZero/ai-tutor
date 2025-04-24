@@ -1,15 +1,17 @@
 [Unit]
-Description=AI Tutor PHP-FPM Service
+Description=AI Tutor PHP-FPM
 After=network.target
 
 [Service]
-Type=forking
-User=www-data
-Group=www-data
-ExecStart=/usr/sbin/php-fpm8.1 --nodaemonize --fpm-config /home/antinomy/projects/SAAS/AI-Tutor/config/php-fpm.conf
+Type=simple
+User=%i
+Group=%i
+ExecStart=/usr/sbin/php-fpm --nodaemonize --fpm-config %h/config/php-fpm.conf
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=always
 RestartSec=5
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

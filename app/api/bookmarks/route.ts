@@ -92,32 +92,20 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    console.log("GET /api/bookmarks - Starting request");
     const session = await getServerSession(authOptions);
-    console.log("GET /api/bookmarks - Session:", JSON.stringify(session));
 
     if (!session?.user) {
-      console.log("GET /api/bookmarks - No user in session");
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Get user from database to ensure we have the ID
-    console.log(
-      "GET /api/bookmarks - Looking up user with email:",
-      session.user.email
-    );
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email as string,
       },
     });
-    console.log(
-      "GET /api/bookmarks - User lookup result:",
-      user ? `Found user with ID ${user.id}` : "User not found"
-    );
 
     if (!user) {
-      console.log("GET /api/bookmarks - User not found in database");
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
 

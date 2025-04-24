@@ -1,51 +1,51 @@
 <?php
-/**
- * Router script for PHP-FPM
- * This script is used by the PHP-FPM server to route requests to the appropriate handler
- */
-
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$requestTime = date('Y-m-d H:i:s');
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestUri = $_SERVER['REQUEST_URI'];
-$requestIp = $_SERVER['REMOTE_ADDR'];
 
-// Log request to error log
-error_log("[PHP-FPM] $requestTime - $requestMethod $requestUri - $requestIp");
+error_log("\033[36m[PHP]\033[0m $requestMethod $requestUri");
 
 // Handle static files
-if (preg_match('/\.(?:png|jpg|jpeg|gif|css|js)$/', $_SERVER["REQUEST_URI"])) {
-    $file = __DIR__ . $_SERVER["REQUEST_URI"];
-    if (file_exists($file)) {
-        $extension = pathinfo($file, PATHINFO_EXTENSION);
-        switch ($extension) {
-            case 'css':
-                header('Content-Type: text/css');
-                break;
-            case 'js':
-                header('Content-Type: application/javascript');
-                break;
-            case 'png':
-                header('Content-Type: image/png');
-                break;
-            case 'jpg':
-            case 'jpeg':
-                header('Content-Type: image/jpeg');
-                break;
-            case 'gif':
-                header('Content-Type: image/gif');
-                break;
-        }
-        readfile($file);
-        exit;
-    } else {
-        header('HTTP/1.0 404 Not Found');
-        exit;
+$filePath = __DIR__ . parse_url($requestUri, PHP_URL_PATH);
+$extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+// If the file exists and has a valid extension, serve it directly
+if (file_exists($filePath) && in_array($extension, ['html', 'css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'json'])) {
+    // Set the appropriate content type
+    switch ($extension) {
+        case 'html':
+            header('Content-Type: text/html');
+            break;
+        case 'css':
+            header('Content-Type: text/css');
+            break;
+        case 'js':
+            header('Content-Type: application/javascript');
+            break;
+        case 'json':
+            header('Content-Type: application/json');
+            break;
+        case 'png':
+            header('Content-Type: image/png');
+            break;
+        case 'jpg':
+        case 'jpeg':
+            header('Content-Type: image/jpeg');
+            break;
+        case 'gif':
+            header('Content-Type: image/gif');
+            break;
+        case 'svg':
+            header('Content-Type: image/svg+xml');
+            break;
     }
+
+    // Output the file content
+    readfile($filePath);
+    exit;
 }
 
-// Route all other requests to index.php
+// For API requests, use the index.php router
 require __DIR__ . '/index.php';

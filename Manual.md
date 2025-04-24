@@ -169,10 +169,121 @@ bunx prisma studio
 - `/api/notes` - Manage user notes (GET, POST, DELETE)
 - `/api/bookmarks` - Manage user bookmarks (GET, POST, DELETE)
 - `/api/user-progress` - Track user progress (GET, POST)
+- `/api/course-statistics` - Get course and user statistics (GET)
+- `/api/user-activity` - Track and retrieve user activity (GET, POST)
 - `/api/knowledge-test` - Generate knowledge tests (POST)
 - `/api/course-generator` - Generate course content (POST)
 - `/api/health` - Health check endpoint (GET)
 - `/api/test` - Test PHP backend connectivity (GET)
+
+## API Documentation
+
+### User Progress API
+
+- **URL**: `/api/user-progress`
+- **Methods**: GET, POST
+- **Description**: Track user progress in courses
+- **Parameters**:
+  - GET: `courseId` (query parameter)
+  - POST: `courseId`, `progress`, `lastLesson` (optional) (JSON body)
+- **Response Example**:
+  ```json
+  {
+    "progress": {
+      "id": "progress-123",
+      "courseId": "course-1",
+      "userId": "user-1",
+      "progress": 75,
+      "lastLesson": "lesson-3",
+      "createdAt": "2025-04-22T10:00:00Z",
+      "updatedAt": "2025-04-22T10:00:00Z"
+    }
+  }
+  ```
+
+### Course Statistics API
+
+- **URL**: `/api/course-statistics`
+- **Method**: GET
+- **Description**: Get statistics about courses and user learning
+- **Parameters**:
+  - `courseId` (optional query parameter) - If provided, returns statistics for a specific course
+- **Response Example (Course)**:
+  ```json
+  {
+    "statistics": {
+      "courseId": "course-1",
+      "title": "Introduction to AI",
+      "totalLessons": 24,
+      "completedLessons": 18,
+      "averageProgress": 75.5,
+      "userCount": 12,
+      "bookmarkCount": 8
+    }
+  }
+  ```
+- **Response Example (Overall)**:
+  ```json
+  {
+    "statistics": {
+      "courseCount": 5,
+      "averageProgress": 68.2,
+      "bookmarkCount": 15,
+      "noteCount": 23,
+      "topCourses": [
+        {
+          "courseId": "course-2",
+          "title": "Machine Learning Basics",
+          "progress": 90
+        },
+        {
+          "courseId": "course-1",
+          "title": "Introduction to AI",
+          "progress": 75
+        }
+      ]
+    }
+  }
+  ```
+
+### User Activity API
+
+- **URL**: `/api/user-activity`
+- **Methods**: GET, POST
+- **Description**: Track and retrieve user learning activities
+- **Parameters**:
+  - GET: No parameters required
+  - POST: `activityType`, `resourceId` (optional), `resourceType` (optional) (JSON body)
+- **Valid Activity Types**:
+  - `view_course` - User viewed a course
+  - `view_lesson` - User viewed a lesson
+  - `complete_lesson` - User completed a lesson
+  - `create_note` - User created a note
+  - `create_bookmark` - User bookmarked a lesson
+  - `search` - User performed a search
+- **Response Example (GET)**:
+  ```json
+  {
+    "activities": [
+      {
+        "id": "activity-123",
+        "userId": "user-1",
+        "activityType": "view_lesson",
+        "resourceId": "lesson-2",
+        "resourceType": "lesson",
+        "createdAt": "2025-04-22T10:00:00Z"
+      },
+      {
+        "id": "activity-122",
+        "userId": "user-1",
+        "activityType": "view_course",
+        "resourceId": "course-1",
+        "resourceType": "course",
+        "createdAt": "2025-04-22T09:45:00Z"
+      }
+    ]
+  }
+  ```
 
 ## Authentication
 
