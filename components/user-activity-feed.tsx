@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { format } from "date-fns"
 import Link from "next/link"
 
-// PHP backend URL
-const PHP_API_URL = "http://localhost:8000/api"
+// PHP backend URL - Commented out for Render deployment
+// const PHP_API_URL = "http://localhost:8000/api"
 
 export default function UserActivityFeed() {
   const { status } = useSession()
@@ -28,18 +28,26 @@ export default function UserActivityFeed() {
   const fetchActivities = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
+      // PHP API call commented out for Render deployment
+      /*
       const response = await fetch(`${PHP_API_URL}/user-activity`, {
         credentials: 'include',
       })
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch activities")
       }
-      
+
       const data = await response.json()
       setActivities(data.activities || [])
+      */
+
+      // For Render deployment, we'll use an empty array since user activity
+      // is only implemented in PHP backend
+      setActivities([])
+      // Alternatively, you could implement a Next.js API route for user activity
     } catch (error) {
       console.error("Error fetching activities:", error)
       setError("Failed to load activity feed")
@@ -88,7 +96,7 @@ export default function UserActivityFeed() {
 
   const getActivityLink = (activity: any) => {
     if (!activity.resourceId) return null
-    
+
     switch (activity.resourceType) {
       case 'course':
         return `/courses/${activity.resourceId}`
@@ -167,7 +175,7 @@ export default function UserActivityFeed() {
                   </div>
                 </div>
               )
-              
+
               return (
                 <div key={activity.id} className="relative pl-8 before:absolute before:left-3.5 before:top-8 before:h-[calc(100%-24px)] before:w-px before:bg-muted">
                   {activityLink ? (

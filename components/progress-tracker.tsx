@@ -7,8 +7,8 @@ import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-// PHP backend URL
-const PHP_API_URL = "http://localhost:8000/api"
+// PHP backend URL - Commented out for Render deployment
+// const PHP_API_URL = "http://localhost:8000/api"
 
 type ProgressTrackerProps = {
   courseId: string
@@ -32,6 +32,7 @@ export default function ProgressTracker({ courseId, initialProgress = 0, lastLes
   const fetchProgress = async () => {
     setIsLoading(true)
     try {
+      /*
       const response = await fetch(`${PHP_API_URL}/user-progress?courseId=${courseId}`, {
         credentials: 'include',
       })
@@ -42,21 +43,20 @@ export default function ProgressTracker({ courseId, initialProgress = 0, lastLes
       } else {
         setProgress(initialProgress)
       }
-    } catch (error) {
-      console.error("PHP API error:", error)
-      try {
-        // Fallback to Next.js API
-        const response = await fetch(`/api/user-progress?courseId=${courseId}`)
-        const data = await response.json()
+      */
 
-        if (data.progress) {
-          setProgress(data.progress.progress)
-        } else {
-          setProgress(initialProgress)
-        }
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError)
+      // Using Next.js API directly
+      const response = await fetch(`/api/user-progress?courseId=${courseId}`)
+      const data = await response.json()
+
+      if (data.progress) {
+        setProgress(data.progress.progress)
+      } else {
+        setProgress(initialProgress)
       }
+    } catch (error) {
+      console.error("API error:", error)
+      setProgress(initialProgress)
     } finally {
       setIsLoading(false)
     }
@@ -66,6 +66,8 @@ export default function ProgressTracker({ courseId, initialProgress = 0, lastLes
     if (!session?.user) return
 
     try {
+      // PHP API call commented out for Render deployment
+      /*
       const response = await fetch(`${PHP_API_URL}/user-progress`, {
         method: "POST",
         headers: {
@@ -85,7 +87,7 @@ export default function ProgressTracker({ courseId, initialProgress = 0, lastLes
 
       const data = await response.json()
       setProgress(data.progress.progress)
-      
+
       // Record activity
       try {
         await fetch(`${PHP_API_URL}/user-activity`, {
@@ -103,33 +105,30 @@ export default function ProgressTracker({ courseId, initialProgress = 0, lastLes
       } catch (activityError) {
         console.error("Failed to record activity:", activityError)
       }
-      
-    } catch (error) {
-      console.error("PHP API error:", error)
-      try {
-        // Fallback to Next.js API
-        const response = await fetch("/api/user-progress", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            courseId,
-            progress: newProgress,
-            lastLesson: newLastLesson || lastLesson
-          }),
-        })
+      */
 
-        if (!response.ok) {
-          throw new Error("Failed to update progress")
-        }
+      // Using Next.js API directly
+      const response = await fetch("/api/user-progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId,
+          progress: newProgress,
+          lastLesson: newLastLesson || lastLesson
+        }),
+      })
 
-        const data = await response.json()
-        setProgress(data.progress.progress)
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError)
-        toast.error("Failed to update progress")
+      if (!response.ok) {
+        throw new Error("Failed to update progress")
       }
+
+      const data = await response.json()
+      setProgress(data.progress.progress)
+    } catch (error) {
+      console.error("API error:", error)
+      toast.error("Failed to update progress")
     }
   }
 

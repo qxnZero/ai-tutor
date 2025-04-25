@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-// PHP backend URL
-const PHP_API_URL = "http://localhost:8000/api"
+// PHP backend URL - Commented out for Render deployment
+// const PHP_API_URL = "http://localhost:8000/api"
 
 type LessonNotesProps = {
   lessonId: string
@@ -32,6 +32,8 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
   const fetchNote = async () => {
     setIsLoading(true)
     try {
+      // PHP API call commented out for Render deployment
+      /*
       const response = await fetch(`${PHP_API_URL}/notes?lessonId=${lessonId}`, {
         credentials: 'include',
       })
@@ -44,22 +46,23 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
         setNote("")
         setNoteId(null)
       }
-    } catch (error) {
-      console.error("PHP API error:", error)
-      try {
-        const response = await fetch(`/api/notes?lessonId=${lessonId}`)
-        const data = await response.json()
+      */
 
-        if (data.note) {
-          setNote(data.note.content)
-          setNoteId(data.note.id)
-        } else {
-          setNote("")
-          setNoteId(null)
-        }
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError)
+      // Using Next.js API directly
+      const response = await fetch(`/api/notes?lessonId=${lessonId}`)
+      const data = await response.json()
+
+      if (data.note) {
+        setNote(data.note.content)
+        setNoteId(data.note.id)
+      } else {
+        setNote("")
+        setNoteId(null)
       }
+    } catch (error) {
+      console.error("API error:", error)
+      setNote("")
+      setNoteId(null)
     } finally {
       setIsLoading(false)
     }
@@ -70,6 +73,8 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
 
     setIsSaving(true)
     try {
+      // PHP API call commented out for Render deployment
+      /*
       const response = await fetch(`${PHP_API_URL}/notes`, {
         method: "POST",
         headers: {
@@ -89,31 +94,30 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
       const data = await response.json()
       setNoteId(data.note.id)
       toast.success("Note saved")
-    } catch (error) {
-      console.error("PHP API error:", error)
-      try {
-        const response = await fetch("/api/notes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: note,
-            lessonId,
-          }),
-        })
+      */
 
-        if (!response.ok) {
-          throw new Error("Failed to save note")
-        }
+      // Using Next.js API directly
+      const response = await fetch("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: note,
+          lessonId,
+        }),
+      })
 
-        const data = await response.json()
-        setNoteId(data.note.id)
-        toast.success("Note saved")
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError)
-        toast.error("Failed to save note")
+      if (!response.ok) {
+        throw new Error("Failed to save note")
       }
+
+      const data = await response.json()
+      setNoteId(data.note.id)
+      toast.success("Note saved")
+    } catch (error) {
+      console.error("API error:", error)
+      toast.error("Failed to save note")
     } finally {
       setIsSaving(false)
     }
@@ -124,6 +128,8 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
 
     setIsDeleting(true)
     try {
+      // PHP API call commented out for Render deployment
+      /*
       const response = await fetch(`${PHP_API_URL}/notes?id=${noteId}`, {
         method: "DELETE",
         credentials: 'include',
@@ -136,24 +142,23 @@ export default function LessonNotes({ lessonId }: LessonNotesProps) {
       setNote("")
       setNoteId(null)
       toast.success("Note deleted")
-    } catch (error) {
-      console.error("PHP API error:", error)
-      try {
-        const response = await fetch(`/api/notes?id=${noteId}`, {
-          method: "DELETE",
-        })
+      */
 
-        if (!response.ok) {
-          throw new Error("Failed to delete note")
-        }
+      // Using Next.js API directly
+      const response = await fetch(`/api/notes?id=${noteId}`, {
+        method: "DELETE",
+      })
 
-        setNote("")
-        setNoteId(null)
-        toast.success("Note deleted")
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError)
-        toast.error("Failed to delete note")
+      if (!response.ok) {
+        throw new Error("Failed to delete note")
       }
+
+      setNote("")
+      setNoteId(null)
+      toast.success("Note deleted")
+    } catch (error) {
+      console.error("API error:", error)
+      toast.error("Failed to delete note")
     } finally {
       setIsDeleting(false)
     }

@@ -68,7 +68,8 @@ export async function GET() {
     response.status = "degraded";
   }
 
-  // Check PHP backend if possible
+  // PHP backend check commented out for Render deployment
+  /*
   try {
     const phpUrl = process.env.PHP_BACKEND_URL || "http://localhost:8000";
     const phpResponse = await fetch(`${phpUrl}/api/test`, {
@@ -97,6 +98,7 @@ export async function GET() {
       error: error instanceof Error ? error.message : "Unknown PHP backend error",
     };
   }
+  */
 
   // Return the health status
   return NextResponse.json(response);
