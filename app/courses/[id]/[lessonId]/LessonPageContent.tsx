@@ -8,7 +8,8 @@ import LessonKnowledgeTest from "@/components/lesson-knowledge-test";
 import LessonNotes from "@/components/lesson-notes";
 import LessonBookmark from "@/components/lesson-bookmark";
 
-// Markdown components
+// Markdown components   above prevous and next        <LessonKnowledgeTest lessonId={lesson.id} />
+
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -165,7 +166,6 @@ export default function LessonPageContent({
             </div>
           </div>
 
-          <LessonKnowledgeTest lessonId={lesson.id} />
 
           <div className="mt-8 pt-8 border-t flex justify-between">
             {previousLesson ? (
