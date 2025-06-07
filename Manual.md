@@ -26,14 +26,7 @@ The AI Tutor uses a dual backend architecture:
 DATABASE_URL='postgresql://neondb_owner:password@your-neon-db-host.aws.neon.tech/neondb?sslmode=require'
 ```
 
-2. Test the PHP database connection:
-
-```bash
-cd php-backend
-php test-db.php
-```
-
-If you see "SUCCESS: Connected to the database successfully!", the connection is working.
+2. Test the database connection by running the application.
 
 ## Running the Application
 
@@ -48,44 +41,14 @@ bunx prisma generate
 bun --bun next build
 ```
 
-### Running Next.js Backend
+### Running the Application
 
 ```bash
-# Start Next.js in production mode
-bun --bun next start
+# Start in production mode
+bun run start
 
-# OR start Next.js in development mode
-bun --bun next dev
-```
-
-### Running PHP Backend
-
-#### Development Server (for local development)
-
-```bash
-# Start PHP development server
-cd php-backend
-php -S localhost:8000 router.php
-```
-
-#### PHP-FPM (for production)
-
-```bash
-# Start PHP-FPM server
-php-fpm -F -y ./config/php-fpm.conf
-
-# OR use the script in package.json
-bun run php:fpm
-```
-
-#### Running Both Next.js and PHP Together
-
-```bash
-# Development mode
-bun run dev:all
-
-# Production mode
-bun run start:all
+# OR start in development mode
+bun run dev
 ```
 
 ### Using tmux (Recommended for VPS)
@@ -164,7 +127,7 @@ bunx prisma studio
 - `/api/teaching-assistant` - Get teaching assistant responses
 - `/api/health` - Health check endpoint
 
-### PHP Endpoints
+### Additional Next.js Endpoints
 
 - `/api/notes` - Manage user notes (GET, POST, DELETE)
 - `/api/bookmarks` - Manage user bookmarks (GET, POST, DELETE)
@@ -172,9 +135,7 @@ bunx prisma studio
 - `/api/course-statistics` - Get course and user statistics (GET)
 - `/api/user-activity` - Track and retrieve user activity (GET, POST)
 - `/api/knowledge-test` - Generate knowledge tests (POST)
-- `/api/course-generator` - Generate course content (POST)
-- `/api/health` - Health check endpoint (GET)
-- `/api/test` - Test PHP backend connectivity (GET)
+- `/api/subscriptions` - Handle subscription management (GET, POST)
 
 ## API Documentation
 
@@ -313,24 +274,9 @@ Common error codes:
 
 ## Logging
 
-Both backends include enhanced logging:
-- PHP requests are prefixed with `[PHP]` in the console
-- Next.js requests have no prefix
-- Logs are stored in the `logs` directory
+Application includes enhanced logging stored in the `logs` directory.
 
 ## Troubleshooting
-
-### PHP PostgreSQL Driver Issues
-
-If you encounter "could not find driver" errors:
-
-```bash
-# Install the PostgreSQL driver for PHP
-sudo apt install php-pgsql
-
-# Verify installation
-php -m | grep pgsql
-```
 
 ### Database Connection Issues
 
@@ -351,25 +297,16 @@ bun --bun next build
 
 ### Checking Services
 
-Verify that both services are running:
+Verify the application is running:
 
 ```bash
 # Check for running processes
-ps aux | grep php
 ps aux | grep bun
 ```
 
 ## Accessing the Application
 
-- Next.js frontend: http://localhost:3000
-- PHP backend API: http://localhost:8000/api/test
-
-## Testing API Endpoints
-
-You can test PHP backend endpoints without authentication by adding the `test=1` query parameter:
-
-```
-GET /api/notes?test=1
-```
+- Application: http://localhost:3000
+- All API endpoints: http://localhost:3000/api/*
 
 This will return a success message without requiring authentication, useful for verifying the endpoint is accessible.

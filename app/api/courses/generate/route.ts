@@ -6,7 +6,6 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the current user session
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -56,7 +55,7 @@ export async function POST(req: NextRequest) {
       return module;
     });
 
-    // Create course in database
+
     console.log("Creating course in database...");
     const course = await prisma.course.create({
       data: {

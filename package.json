@@ -6,11 +6,6 @@
     "build": "bunx prisma generate && bun --bun next build",
     "dev": "bun --bun next dev",
     "start": "bun --bun next start",
-    "php": "cd php-backend && php -S localhost:8000 router.php",
-    "php:fpm": "php-fpm -F -y ./config/php-fpm.conf",
-    "php:test": "cd php-backend && php -S localhost:8080 test-fpm.php",
-    "dev:all": "concurrently \"bun --bun next dev\" \"cd php-backend && php -S localhost:8000 router.php\"",
-    "start:all": "concurrently \"bun --bun next start\" \"php-fpm -F -y ./config/php-fpm.conf\"",
     "lint": "bun --bun next lint",
     "postinstall": "bunx prisma generate",
     "db:studio": "bunx prisma studio"

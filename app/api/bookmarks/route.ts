@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from database to ensure we have the ID
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email as string,
@@ -29,7 +28,6 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    // Validate input
     const result = bookmarkSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
@@ -40,7 +38,6 @@ export async function POST(req: NextRequest) {
 
     const { lessonId } = body;
 
-    // Check if lesson exists
     const lesson = await prisma.lesson.findUnique({
       where: {
         id: lessonId,
@@ -54,7 +51,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if bookmark already exists
     const existingBookmark = await prisma.bookmark.findFirst({
       where: {
         lessonId,
@@ -69,7 +65,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create bookmark
     const bookmark = await prisma.bookmark.create({
       data: {
         lessonId,
@@ -98,7 +93,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from database to ensure we have the ID
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email as string,
@@ -144,7 +138,6 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from database to ensure we have the ID
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email as string,
@@ -167,8 +160,6 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (bookmarkId) {
-      // Delete by bookmark ID
-      // Check if bookmark exists and belongs to user
       const bookmark = await prisma.bookmark.findUnique({
         where: {
           id: bookmarkId,
@@ -186,15 +177,12 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
 
-      // Delete bookmark
       await prisma.bookmark.delete({
         where: {
           id: bookmarkId,
         },
       });
     } else {
-      // Delete by lesson ID
-      // Check if bookmark exists and belongs to user
       const bookmark = await prisma.bookmark.findFirst({
         where: {
           lessonId: lessonId as string,
@@ -209,7 +197,7 @@ export async function DELETE(req: NextRequest) {
         );
       }
 
-      // Delete bookmark
+
       await prisma.bookmark.delete({
         where: {
           id: bookmark.id,

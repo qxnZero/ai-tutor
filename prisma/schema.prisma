@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 
 generator client {
   provider = "prisma-client-js"
@@ -18,7 +17,7 @@ model User {
   password          String?
   image             String?
 
-  // OAuth provider fields (consolidated from Account)
+
   provider          String?
   providerAccountId String?
   refresh_token     String?   @db.Text
@@ -29,7 +28,7 @@ model User {
   id_token          String?   @db.Text
   session_state     String?
 
-  // Subscription fields
+
   subscriptionStatus      String    @default("free") // free, premium, cancelled
   subscriptionExpiresAt   DateTime?
   razorpayCustomerId      String?
@@ -46,7 +45,7 @@ model User {
   bookmarks     Bookmark[]
   transactions  SubscriptionTransaction[]
 
-  // Only create the unique constraint if both fields are non-null
+
   @@index([provider, providerAccountId], name: "provider_providerAccountId")
 }
 
