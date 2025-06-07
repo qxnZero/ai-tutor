@@ -1,4 +1,0 @@
-Feature Image - Interactive AI Tutoring:
-An image depicting an interactive conversation between a student and an AI tutor.
-The image should show a chat interface with AI responses that demonstrate understanding and personalized guidance.
-Suggested visual: A modern chat interface with AI-generated responses that show teaching elements.

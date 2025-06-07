@@ -93,7 +93,7 @@ tmux ls
 
 To kill a session:
 ```bash
-tmux kill-session -t ai-tutor-php
+tmux kill-session -t ai-tutor
 ```
 
 ## Database Operations
