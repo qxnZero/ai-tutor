@@ -448,9 +448,9 @@ export default function Home() {
               </p>
               <div className="flex space-x-4">
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" asChild>
-                  <Link href="https://github.com/kirin-9" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://github.com/qxnZero" target="_blank" rel="noopener noreferrer">
                     <Github className="h-4 w-4" />
-                    <span className="sr-only">GitHub - kirin-9</span>
+                    <span className="sr-only">GitHub - qxnZero</span>
                   </Link>
                 </Button>
               </div>
